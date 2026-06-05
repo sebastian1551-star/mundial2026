@@ -8,17 +8,18 @@
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; color: #333; padding: 15px; margin: 0; }
         h1 { text-align: center; color: #1a3c6e; text-transform: uppercase; }
-        .typer-container { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        .typer-container { background: #fff; border-radius: 12px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 950px; margin: auto; }
         
-        /* Obsługa przewijania dla dużej ilości meczów */
-        .table-wrapper { max-height: 500px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #ddd; }
+        .table-wrapper { max-height: 600px; overflow-y: auto; margin-bottom: 20px; border: 1px solid #ddd; }
         
         table { width: 100%; border-collapse: collapse; }
-        th { background: #1a3c6e; color: #fff; padding: 12px 5px; font-size: 0.9rem; position: sticky; top: 0; }
+        th { background: #1a3c6e; color: #fff; padding: 12px 5px; font-size: 1.0rem; position: sticky; top: 0; }
         td { padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; }
         
-        .score-input { display: flex; align-items: center; justify-content: center; gap: 4px; }
-        input[type=number] { width: 40px; height: 40px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; }
+        .score-input { display: flex; align-items: center; justify-content: center; gap: 2px; }
+        input[type=number] { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 5px; text-align: center; font-size: 1rem; }
+        select { height: 35px; border: 2px solid #ddd; border-radius: 5px; text-align: center; }
+        
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .exact { background-color: #28a745 !important; color: white !important; border-color: #1e7e34 !important; }
@@ -26,7 +27,7 @@
         .wrong { background-color: #dc3545 !important; color: white !important; border-color: #bd2130 !important; }
         .real-field { background-color: #e9ecef !important; }
         
-        .ranking-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .ranking-table { width: 90%; border-collapse: collapse; margin-top: 10px; }
         .ranking-table th, .ranking-table td { border: 1px solid #ddd; padding: 12px; text-align: center; }
         
         .leader { background-color: #e8f5e9 !important; font-weight: bold; }
@@ -34,6 +35,24 @@
         .extra-fields { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
         .extra-fields input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         .btn-save { width: 100%; padding: 15px; background: #1a3c6e; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; }
+        /* Kompaktowe pola */
+input[type=number], select {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.75rem;
+    height: 25px;
+}
+
+/* Data i czas - kompaktowe, ale z miejscem na godzinę */
+input[type=datetime-local] {
+    font-family: 'Roboto', sans-serif; /* Zgodnie z prośbą o Roboto */
+    font-size: 0.75rem;
+    width: 145px; /* Zwiększona szerokość, by pomieścić datę i godzinę */
+    height: 25px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 0 2px;
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
@@ -43,49 +62,52 @@
     
     <div class="table-wrapper">
         <table id="typerTable">
-            <thead><tr><th>Godz.</th><th>Mecz</th><th>O1</th><th>O2</th><th>O3</th><th>O4</th><th>Real</th></tr></thead>
+            <thead><tr><th>Godz.</th><th>Mecz</th><th>O1</th><th>Bonus</th><th>O2</th><th>Bonus</th><th>O3</th><th>Bonus</th><th>O4</th><th>Bonus</th><th>Real Wynik</th><th>Real Bonus</th></tr></thead>
             <tbody id="matchBody">
-                <tr data-match="1">
-                    <td>17:00</td><td><small>Grupa A</small><br><strong>Meksyk-RPA</strong></td>
-                    <td><div class="score-input"><input type="number" class="o1-h" oninput="calculate()">:<input type="number" class="o1-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o2-h" oninput="calculate()">:<input type="number" class="o2-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o3-h" oninput="calculate()">:<input type="number" class="o3-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o4-h" oninput="calculate()">:<input type="number" class="o4-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td>
-                </tr>
-                <tr data-match="2">
-                    <td>20:00</td><td><small>Grupa A</small><br><strong>Francja-Polska</strong></td>
-                    <td><div class="score-input"><input type="number" class="o1-h" oninput="calculate()">:<input type="number" class="o1-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o2-h" oninput="calculate()">:<input type="number" class="o2-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o3-h" oninput="calculate()">:<input type="number" class="o3-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o4-h" oninput="calculate()">:<input type="number" class="o4-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td>
-                </tr>
-                <tr data-match="3">
-                    <td>22:00</td><td><small>Grupa B</small><br><strong>Anglia-USA</strong></td>
-                    <td><div class="score-input"><input type="number" class="o1-h" oninput="calculate()">:<input type="number" class="o1-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o2-h" oninput="calculate()">:<input type="number" class="o2-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o3-h" oninput="calculate()">:<input type="number" class="o3-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="o4-h" oninput="calculate()">:<input type="number" class="o4-a" oninput="calculate()"></div></td>
-                    <td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td>
-                </tr>
+                <script>
+    const matches = [
+        { name: "Meksyk-RPA" },
+        { name: "Francja-Polska" },
+        { name: "Anglia-USA" }
+    ];
+    matches.forEach((m, idx) => {
+        // Dodano input typu datetime-local z klasą match-time
+        let row = `<tr data-match="${idx+1}">
+                    <td><input type="datetime-local" class="match-time"></td>
+                    <td><strong>${m.name}</strong></td>`;
+        for(let i=1; i<=4; i++) {
+            row += `<td><div class="score-input"><input type="number" class="o${i}-h" oninput="calculate()">:<input type="number" class="o${i}-a" oninput="calculate()"></div></td>
+                    <td><select class="o${i}-b" onchange="calculate()"><option value="">-</option><option value="1">1</option><option value="X">X</option><option value="2">2</option></select></td>`;
+        }
+        row += `<td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td>
+                <td><select class="real-b real-field" onchange="calculate()"><option value="">-</option><option value="1">1</option><option value="X">X</option><option value="2">2</option></select></td></tr>`;
+        document.write(row);
+    });
+
+    // W funkcji saveData:
+dates: Array.from(document.querySelectorAll('.match-time')).map(i => i.value)
+
+// W funkcji window.onload:
+document.querySelectorAll('.match-time').forEach((el, i) => el.value = saved.dates[i] || '');
+</script>
             </tbody>
         </table>
     </div>
 
     <h3>Ranking Graczy</h3>
     <table class="ranking-table">
-        <thead><tr style="background:#f8f9fa;"><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
+        <thead><tr style="background:#f8f9fa;"><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>Bonus (0.25)</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
         <tbody id="rankingBody">
-            <tr id="row1"><td>Osoba 1</td><td id="id1">0</td><td id="win1">0</td><td id="bad1">0</td><td id="pts1">0</td></tr>
-            <tr id="row2"><td>Osoba 2</td><td id="id2">0</td><td id="win2">0</td><td id="bad2">0</td><td id="pts2">0</td></tr>
-            <tr id="row3"><td>Osoba 3</td><td id="id3">0</td><td id="win3">0</td><td id="bad3">0</td><td id="pts3">0</td></tr>
-            <tr id="row4"><td>Osoba 4</td><td id="id4">0</td><td id="win4">0</td><td id="bad4">0</td><td id="pts4">0</td></tr>
+            <tr id="row1"><td>Osoba 1</td><td id="id1">0</td><td id="win1">0</td><td id="bonus1">0</td><td id="bad1">0</td><td id="pts1">0</td></tr>
+            <tr id="row2"><td>Osoba 2</td><td id="id2">0</td><td id="win2">0</td><td id="bonus2">0</td><td id="bad2">0</td><td id="pts2">0</td></tr>
+            <tr id="row3"><td>Osoba 3</td><td id="id3">0</td><td id="win3">0</td><td id="bonus3">0</td><td id="bad3">0</td><td id="pts3">0</td></tr>
+            <tr id="row4"><td>Osoba 4</td><td id="id4">0</td><td id="win4">0</td><td id="bonus4">0</td><td id="bad4">0</td><td id="pts4">0</td></tr>
         </tbody>
     </table>
 
     <div class="extra-fields">
         <h4>Typy dodatkowe</h4>
+        <input type="text" id="dzisiaj" placeholder="Bonus dzisiaj">
         <input type="text" id="krol1" placeholder="Osoba 1: Król strzelców" oninput="calculate()">
         <input type="text" id="mistrz1" placeholder="Osoba 1: Zwycięzca" oninput="calculate()">
         <input type="text" id="krol2" placeholder="Osoba 2: Król strzelców" oninput="calculate()">
@@ -104,28 +126,33 @@
 
 <script>
     function calculate() {
-        let stats = {pts: [0,0,0,0], ideal: [0,0,0,0], win: [0,0,0,0], bad: [0,0,0,0]};
+        let stats = {pts: [0,0,0,0], ideal: [0,0,0,0], win: [0,0,0,0], bad: [0,0,0,0], bonus: [0,0,0,0]};
         
         document.querySelectorAll('tr[data-match]').forEach(row => {
             const rh = parseInt(row.querySelector('.real-h').value);
             const ra = parseInt(row.querySelector('.real-a').value);
+            const rb = row.querySelector('.real-b').value;
             
             for(let i=1; i<=4; i++) {
                 const hIn = row.querySelector('.o'+i+'-h');
                 const aIn = row.querySelector('.o'+i+'-a');
+                const bIn = row.querySelector('.o'+i+'-b');
                 const ih = parseInt(hIn.value);
                 const ia = parseInt(aIn.value);
+                const ib = bIn.value;
                 
-                hIn.className = 'o'+i+'-h'; aIn.className = 'o'+i+'-a';
-                if (isNaN(rh) || isNaN(ra)) continue;
-                if (isNaN(ih) || isNaN(ia)) continue;
+                [hIn, aIn, bIn].forEach(el => el.className = el.className.split(' ')[0]);
                 
-                if(ih === rh && ia === ra) { 
-                    stats.ideal[i-1]++; stats.pts[i-1] += 3; hIn.classList.add('exact'); aIn.classList.add('exact');
-                } else if((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { 
-                    stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win');
-                } else {
-                    stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong');
+                if (!isNaN(rh) && !isNaN(ra)) {
+                    if(!isNaN(ih) && !isNaN(ia)) {
+                        if(ih === rh && ia === ra) { stats.ideal[i-1]++; stats.pts[i-1] += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
+                        else if((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
+                        else { stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
+                    }
+                }
+                if (rb !== "" && ib !== "") {
+                    if (ib === rb) { stats.bonus[i-1]++; stats.pts[i-1] += 0.25; bIn.classList.add('exact'); }
+                    else { bIn.classList.add('wrong'); }
                 }
             }
         });
@@ -136,35 +163,29 @@
         for(let i=1; i<=4; i++) {
             const krolIn = document.getElementById('krol'+i);
             const mistrzIn = document.getElementById('mistrz'+i);
-            
-            if (realKrol !== "") {
-                if (krolIn.value.trim().toLowerCase() === realKrol) { stats.pts[i-1] += 5; krolIn.className = 'exact'; }
-                else { krolIn.className = 'wrong'; }
-            } else { krolIn.className = ''; }
-            
-            if (realMistrz !== "") {
-                if (mistrzIn.value.trim().toLowerCase() === realMistrz) { stats.pts[i-1] += 5; mistrzIn.className = 'exact'; }
-                else { mistrzIn.className = 'wrong'; }
-            } else { mistrzIn.className = ''; }
+            if (realKrol !== "" && krolIn.value.trim().toLowerCase() === realKrol) { stats.pts[i-1] += 5; krolIn.className = 'exact'; }
+            if (realMistrz !== "" && mistrzIn.value.trim().toLowerCase() === realMistrz) { stats.pts[i-1] += 5; mistrzIn.className = 'exact'; }
 
             document.getElementById('id'+i).innerText = stats.ideal[i-1];
             document.getElementById('win'+i).innerText = stats.win[i-1];
+            document.getElementById('bonus'+i).innerText = stats.bonus[i-1];
             document.getElementById('bad'+i).innerText = stats.bad[i-1];
-            document.getElementById('pts'+i).innerText = stats.pts[i-1];
+            document.getElementById('pts'+i).innerText = stats.pts[i-1].toFixed(2);
         }
 
         const tbody = document.getElementById('rankingBody');
         const rows = Array.from(tbody.querySelectorAll('tr'));
-        rows.sort((a, b) => parseInt(b.querySelector('[id^="pts"]').innerText) - parseInt(a.querySelector('[id^="pts"]').innerText));
-        rows.forEach(row => {
-            row.classList.remove('leader');
-            tbody.appendChild(row);
-        });
-        if(parseInt(rows[0].querySelector('[id^="pts"]').innerText) > 0) rows[0].classList.add('leader');
+        rows.sort((a, b) => parseFloat(b.querySelector('[id^="pts"]').innerText) - parseFloat(a.querySelector('[id^="pts"]').innerText));
+        rows.forEach(row => { row.classList.remove('leader'); tbody.appendChild(row); });
+        if(parseFloat(rows[0].querySelector('[id^="pts"]').innerText) > 0) rows[0].classList.add('leader');
     }
 
     function saveData() {
-        const data = { scores: Array.from(document.querySelectorAll('input[type=number]')).map(i => i.value), texts: Array.from(document.querySelectorAll('.extra-fields input')).map(i => i.value) };
+        const data = { 
+            scores: Array.from(document.querySelectorAll('input[type=number]')).map(i => i.value), 
+            bonus: Array.from(document.querySelectorAll('select')).map(i => i.value),
+            texts: Array.from(document.querySelectorAll('.extra-fields input')).map(i => i.value) 
+        };
         localStorage.setItem('typer2026_data', JSON.stringify(data));
         alert('Zapisano!');
     }
@@ -172,10 +193,9 @@
     window.onload = () => {
         const saved = JSON.parse(localStorage.getItem('typer2026_data'));
         if(saved) {
-            const numInputs = document.querySelectorAll('input[type=number]');
-            saved.scores.forEach((val, i) => { if(numInputs[i]) numInputs[i].value = val; });
-            const txtInputs = document.querySelectorAll('.extra-fields input');
-            saved.texts.forEach((val, i) => { if(txtInputs[i]) txtInputs[i].value = val; });
+            document.querySelectorAll('input[type=number]').forEach((el, i) => el.value = saved.scores[i] || '');
+            document.querySelectorAll('select').forEach((el, i) => el.value = saved.bonus[i] || '');
+            document.querySelectorAll('.extra-fields input').forEach((el, i) => el.value = saved.texts[i] || '');
             calculate();
         }
     };
