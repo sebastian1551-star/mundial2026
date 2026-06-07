@@ -46,7 +46,7 @@
                 const matches = ["Meksyk-RPA", "Korea Płd-Czechy", "Kanada-Bośnia", "USA-Paragwaj", "Katar-Szwajcaria", "Brazylia-Maroko", "Haiti-Szkocja", "Australia-Turcja"];
                 matches.forEach((m, idx) => {
                     document.write(`<tr data-match="${idx+1}" class="match-row">
-                        <td><input type="text" class="match-time" placeholder="13.06.26 15:30" oninput="sortMatches()"></td>
+                        <td><input type="text" class="match-time" placeholder="13.06.26 15:30" onblur="sortMatches()"></td>
                         <td><strong>${m}</strong></td>
                         ${[1,2,3,4].map(i => `<td><input type="number" class="p${i}-h" maxlength="1" oninput="calculate(); autoTab(this)">:<input type="number" class="p${i}-a" maxlength="1" oninput="calculate(); autoTab(this)"></td>`).join('')}
                         <td><input type="number" class="real-h real-field" maxlength="1" oninput="calculate(); autoTab(this)">:<input type="number" class="real-a real-field" maxlength="1" oninput="calculate(); autoTab(this)"></td>
@@ -85,7 +85,6 @@
 </div>
 
 <script>
-    // Funkcja do automatycznego przeskakiwania między polami
     function autoTab(el) {
         if (el.value.length >= el.getAttribute("maxlength")) {
             const inputs = Array.from(document.querySelectorAll('input[type="number"]'));
