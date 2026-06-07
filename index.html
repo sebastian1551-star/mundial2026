@@ -17,7 +17,7 @@
         td { padding: 10px 5px; border-bottom: 1px solid #eee; text-align: center; }
         
         .score-input { display: flex; align-items: center; justify-content: center; gap: 2px; }
-        input[type=number], select { font-family: 'Roboto', sans-serif; font-size: 0.75rem; height: 25px; width: 24px; border: 2px solid #ddd; border-radius: 5px; text-align: center; }
+        input[type=number] { font-family: 'Roboto', sans-serif; font-size: 0.75rem; height: 25px; width: 24px; border: 2px solid #ddd; border-radius: 5px; text-align: center; }
         
         /* Pole na datę i godzinę - tekstowe */
         .match-time {
@@ -55,7 +55,7 @@
     
     <div class="table-wrapper">
         <table id="typerTable">
-            <thead><tr><th>Godz.</th><th>Mecz</th><th>O1</th><th>Bonus</th><th>O2</th><th>Bonus</th><th>O3</th><th>Bonus</th><th>O4</th><th>Bonus</th><th>Real Wynik</th><th>Real Bonus</th></tr></thead>
+            <thead><tr><th>Godz.</th><th>Mecz</th><th>O1</th><th>O2</th><th>O3</th><th>O4</th><th>Real Wynik</th></tr></thead>
             <tbody id="matchBody">
                 <script>
                     const matches = [
@@ -73,11 +73,9 @@
                                     <td><input type="text" class="match-time" placeholder="13.06.26 15:30"></td>
                                     <td><strong>${m.name}</strong></td>`;
                         for(let i=1; i<=4; i++) {
-                            row += `<td><div class="score-input"><input type="number" class="o${i}-h" oninput="calculate()">:<input type="number" class="o${i}-a" oninput="calculate()"></div></td>
-                                    <td><select class="o${i}-b" onchange="calculate()"><option value="">-</option><option value="1">1</option><option value="X">X</option><option value="2">2</option></select></td>`;
+                            row += `<td><div class="score-input"><input type="number" class="o${i}-h" oninput="calculate()">:<input type="number" class="o${i}-a" oninput="calculate()"></div></td>`;
                         }
-                        row += `<td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td>
-                                <td><select class="real-b real-field" onchange="calculate()"><option value="">-</option><option value="1">1</option><option value="X">X</option><option value="2">2</option></select></td></tr>`;
+                        row += `<td><div class="score-input"><input type="number" class="real-h real-field" oninput="calculate()">:<input type="number" class="real-a real-field" oninput="calculate()"></div></td></tr>`;
                         document.write(row);
                     });
                 </script>
@@ -87,18 +85,17 @@
 
     <h3>Ranking Graczy</h3>
     <table class="ranking-table">
-        <thead><tr style="background:#f8f9fa;"><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>Bonus</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
+        <thead><tr style="background:#f8f9fa;"><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
         <tbody id="rankingBody">
-            <tr id="row1"><td>Oniszk (1)</td><td id="id1">0</td><td id="win1">0</td><td id="bonus1">0</td><td id="bad1">0</td><td id="pts1">0</td></tr>
-            <tr id="row2"><td>Sebix (2)</td><td id="id2">0</td><td id="win2">0</td><td id="bonus2">0</td><td id="bad2">0</td><td id="pts2">0</td></tr>
-            <tr id="row3"><td>Adaś (3)</td><td id="id3">0</td><td id="win3">0</td><td id="bonus3">0</td><td id="bad3">0</td><td id="pts3">0</td></tr>
-            <tr id="row4"><td>Kuba (4)</td><td id="id4">0</td><td id="win4">0</td><td id="bonus4">0</td><td id="bad4">0</td><td id="pts4">0</td></tr>
+            <tr id="row1"><td>Oniszk (1)</td><td id="id1">0</td><td id="win1">0</td><td id="bad1">0</td><td id="pts1">0</td></tr>
+            <tr id="row2"><td>Sebix (2)</td><td id="id2">0</td><td id="win2">0</td><td id="bad2">0</td><td id="pts2">0</td></tr>
+            <tr id="row3"><td>Adaś (3)</td><td id="id3">0</td><td id="win3">0</td><td id="bad3">0</td><td id="pts3">0</td></tr>
+            <tr id="row4"><td>Kuba (4)</td><td id="id4">0</td><td id="win4">0</td><td id="bad4">0</td><td id="pts4">0</td></tr>
         </tbody>
     </table>
 
     <div class="extra-fields">
         <h4>Typy dodatkowe</h4>
-        <input type="text" id="dzisiaj" placeholder="Bonus dzisiaj">
         <input type="text" id="krol1" placeholder="Osoba 1: Król strzelców" oninput="calculate()">
         <input type="text" id="mistrz1" placeholder="Osoba 1: Zwycięzca" oninput="calculate()">
         <input type="text" id="krol2" placeholder="Osoba 2: Król strzelców" oninput="calculate()">
@@ -117,22 +114,19 @@
 
 <script>
     function calculate() {
-        let stats = {pts: [0,0,0,0], ideal: [0,0,0,0], win: [0,0,0,0], bad: [0,0,0,0], bonus: [0,0,0,0]};
+        let stats = {pts: [0,0,0,0], ideal: [0,0,0,0], win: [0,0,0,0], bad: [0,0,0,0]};
         
         document.querySelectorAll('tr[data-match]').forEach(row => {
             const rh = parseInt(row.querySelector('.real-h').value);
             const ra = parseInt(row.querySelector('.real-a').value);
-            const rb = row.querySelector('.real-b').value;
             
             for(let i=1; i<=4; i++) {
                 const hIn = row.querySelector('.o'+i+'-h');
                 const aIn = row.querySelector('.o'+i+'-a');
-                const bIn = row.querySelector('.o'+i+'-b');
                 const ih = parseInt(hIn.value);
                 const ia = parseInt(aIn.value);
-                const ib = bIn.value;
                 
-                [hIn, aIn, bIn].forEach(el => el.className = el.className.split(' ')[0]);
+                [hIn, aIn].forEach(el => el.className = el.className.split(' ')[0]);
                 
                 if (!isNaN(rh) && !isNaN(ra)) {
                     if(!isNaN(ih) && !isNaN(ia)) {
@@ -140,10 +134,6 @@
                         else if((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
                         else { stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
                     }
-                }
-                if (rb !== "" && ib !== "") {
-                    if (ib === rb) { stats.bonus[i-1]++; stats.pts[i-1] += 0.25; bIn.classList.add('exact'); }
-                    else { bIn.classList.add('wrong'); }
                 }
             }
         });
@@ -159,9 +149,8 @@
 
             document.getElementById('id'+i).innerText = stats.ideal[i-1];
             document.getElementById('win'+i).innerText = stats.win[i-1];
-            document.getElementById('bonus'+i).innerText = stats.bonus[i-1];
             document.getElementById('bad'+i).innerText = stats.bad[i-1];
-            document.getElementById('pts'+i).innerText = stats.pts[i-1].toFixed(2);
+            document.getElementById('pts'+i).innerText = stats.pts[i-1];
         }
 
         const tbody = document.getElementById('rankingBody');
@@ -174,7 +163,6 @@
     function saveData() {
         const data = { 
             scores: Array.from(document.querySelectorAll('input[type=number]')).map(i => i.value), 
-            bonus: Array.from(document.querySelectorAll('select')).map(i => i.value),
             texts: Array.from(document.querySelectorAll('.extra-fields input')).map(i => i.value),
             dates: Array.from(document.querySelectorAll('.match-time')).map(i => i.value)
         };
@@ -186,7 +174,6 @@
         const saved = JSON.parse(localStorage.getItem('typer2026_data'));
         if(saved) {
             document.querySelectorAll('input[type=number]').forEach((el, i) => el.value = saved.scores[i] || '');
-            document.querySelectorAll('select').forEach((el, i) => el.value = saved.bonus[i] || '');
             document.querySelectorAll('.extra-fields input').forEach((el, i) => el.value = saved.texts[i] || '');
             if(saved.dates) {
                 document.querySelectorAll('.match-time').forEach((el, i) => el.value = saved.dates[i] || '');
