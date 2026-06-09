@@ -8,29 +8,24 @@
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 5px; margin: 0; }
         .typer-container { background: #fff; padding: 10px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 600px; }
-        th { background: #1a3c6e; color: #fff; padding: 10px 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
+        th { background: #1a3c6e; color: #fff; padding: 12px 5px; }
         td { padding: 8px 4px; border-bottom: 1px solid #eee; text-align: center; }
-        
-        input[type=number] { width: 30px; height: 30px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; -moz-appearance: textfield; }
+        .score-box { display: flex; align-items: center; justify-content: center; gap: 2px; }
+        input[type=number] { width: 28px; height: 35px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; -moz-appearance: textfield; padding: 0; }
         input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        .match-time { width: 85px; font-size: 0.75rem; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .real-field { background-color: #e9ecef !important; }
-        .exact { background-color: #28a745 !important; color: white !important; }
-        .win { background-color: #ffc107 !important; }
-        .wrong { background-color: #dc3545 !important; color: white !important; }
-        
+        .separator { font-weight: bold; color: #555; }
+        .match-time { width: 80px; font-size: 0.7rem; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        .real-field { background-color: #e9ecef !important; border-color: #adb5bd !important; }
+        .exact { background-color: #28a745 !important; color: white !important; border-color: #1e7e34 !important; }
+        .win { background-color: #ffc107 !important; border-color: #d39e00 !important; }
+        .wrong { background-color: #dc3545 !important; color: white !important; border-color: #bd2130 !important; }
         .ranking-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
-        .ranking-table td, .ranking-table th { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        
-        .extra-fields { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .ranking-table td, .ranking-table th { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .extra-fields { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
         .extra-fields input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-        
         .btn-save { width: 100%; padding: 18px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; }
-        
         #countdown { text-align: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #1a3c6e; }
         .blink { animation: blinker 1s linear infinite; color: red !important; }
         @keyframes blinker { 50% { opacity: 0; } }
@@ -50,14 +45,16 @@
             <thead><tr><th>Godz.</th><th>Mecz</th><th>Oniszk</th><th>Sebix</th><th>Adaś</th><th>Kuba</th><th>Maksym</th><th>Real</th></tr></thead>
             <tbody id="matchBody">
                 <script>
-                    const matches = ["Meksyk-RPA", "Korea Płd-Czechy", "Kanada-Bośnia", "USA-Paragwaj", "Katar-Szwajcaria", "Brazylia-Maroko", "Haiti-Szkocja", "Australia-Turcja", "Niemcy- Curacao", "Holandia- Japonia", "WKS- Ekwador", "Szwecja- Tunezja", "Hiszpania- Republika Zielonego Przylądka", "Belgia- Egipt"];
+                    const matches = ["Meksyk-RPA", "Korea Płd-Czechy", "Kanada-Bośnia", "USA-Paragwaj", "Katar-Szwajcaria", "Brazylia-Maroko", "Haiti-Szkocja", "Australia-Turcja", "Niemcy-Curacao", "Holandia-Japonia", "WKS-Ekwador", "Szwecja-Tunezja", "Hiszpania-Rep. Zielonego Przylądka", "Belgia-Egipt"];
                     matches.forEach((m, idx) => {
-                        document.write(`<tr data-match="${idx+1}" class="match-row">
+                        let row = `<tr data-match="${idx+1}" class="match-row">
                             <td><input type="text" class="match-time" placeholder="13.06.26 15:30" onblur="sortMatches()"></td>
-                            <td><strong>${m}</strong></td>
-                            ${[1,2,3,4,5].map(i => `<td><input type="number" class="p${i}-h" maxlength="1" oninput="calculate(); autoTab(this)">:<input type="number" class="p${i}-a" maxlength="1" oninput="calculate(); autoTab(this)"></td>`).join('')}
-                            <td><input type="number" class="real-h real-field" maxlength="1" oninput="calculate(); autoTab(this)">:<input type="number" class="real-a real-field" maxlength="1" oninput="calculate(); autoTab(this)"></td>
-                        </tr>`);
+                            <td><strong>${m}</strong></td>`;
+                        for(let i=1; i<=5; i++) {
+                            row += `<td><div class="score-box"><input type="number" class="p${i}-h" maxlength="1" oninput="calculate(); autoTab(this)"><span class="separator">:</span><input type="number" class="p${i}-a" maxlength="1" oninput="calculate(); autoTab(this)"></div></td>`;
+                        }
+                        row += `<td><div class="score-box"><input type="number" class="real-h real-field" maxlength="1" oninput="calculate(); autoTab(this)"><span class="separator">:</span><input type="number" class="real-a real-field" maxlength="1" oninput="calculate(); autoTab(this)"></div></td></tr>`;
+                        document.write(row);
                     });
                 </script>
             </tbody>
@@ -76,18 +73,18 @@
         </tbody>
     </table>
 
-    <div class="extra-fields">
+    <div class="extra-fields" id="extraFields">
         <h4>Typy dodatkowe</h4>
         <script>
             const names = ["Oniszk", "Sebix", "Adaś", "Kuba", "Maksym"];
             names.forEach((name, i) => {
-                document.write(`<input type="text" id="krol${i+1}" placeholder="${name}: Król strzelców" oninput="calculate()">`);
-                document.write(`<input type="text" id="mistrz${i+1}" placeholder="${name}: Zwycięzca" oninput="calculate()">`);
+                document.write(`<input type="text" class="extra-input" id="krol${i+1}" placeholder="${name}: Król strzelców" oninput="calculate()">`);
+                document.write(`<input type="text" class="extra-input" id="mistrz${i+1}" placeholder="${name}: Zwycięzca" oninput="calculate()">`);
             });
         </script>
         <hr>
-        <input type="text" id="real-krol" placeholder="Faktyczny Król" oninput="calculate()" class="real-field">
-        <input type="text" id="real-mistrz" placeholder="Faktyczny Zwycięzca" oninput="calculate()" class="real-field">
+        <input type="text" id="real-krol" class="real-field" placeholder="Faktyczny Król" oninput="calculate()">
+        <input type="text" id="real-mistrz" class="real-field" placeholder="Faktyczny Zwycięzca" oninput="calculate()">
     </div>
     <button class="btn-save" onclick="saveData()">ZAPISZ WYNIKI</button>
 </div>
@@ -97,9 +94,7 @@
         if (el.value.length >= el.getAttribute("maxlength")) {
             const inputs = Array.from(document.querySelectorAll('input[type="number"]'));
             const index = inputs.indexOf(el);
-            if (index > -1 && inputs[index + 1]) {
-                inputs[index + 1].focus();
-            }
+            if (index > -1 && inputs[index + 1]) inputs[index + 1].focus();
         }
     }
 
@@ -111,31 +106,22 @@
     function sortMatches() {
         const tbody = document.getElementById('matchBody');
         const rows = Array.from(document.querySelectorAll('.match-row'));
-        rows.sort((a, b) => {
-            const timeA = parseDate(a.querySelector('.match-time').value) || Infinity;
-            const timeB = parseDate(b.querySelector('.match-time').value) || Infinity;
-            return timeA - timeB;
-        });
+        rows.sort((a, b) => (parseDate(a.querySelector('.match-time').value) || Infinity) - (parseDate(b.querySelector('.match-time').value) || Infinity));
         rows.forEach(row => tbody.appendChild(row));
         updateCountdown();
     }
 
     function updateCountdown() {
-        const rows = document.querySelectorAll('.match-row');
-        let closestTime = null;
         const now = new Date().getTime();
-
-        rows.forEach(row => {
+        let closestTime = null;
+        document.querySelectorAll('.match-row').forEach(row => {
             const time = parseDate(row.querySelector('.match-time').value);
             if (time && time > now && (!closestTime || time < closestTime)) closestTime = time;
         });
-
         const display = document.getElementById('countdown');
         if (closestTime) {
             const diff = closestTime - now;
-            const h = Math.floor(diff / (1000 * 60 * 60));
-            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            display.innerText = `Do najbliższego meczu: ${h}h ${m}m`;
+            display.innerText = `Do najbliższego meczu: ${Math.floor(diff / 3600000)}h ${Math.floor((diff % 3600000) / 60000)}m`;
             display.className = (diff < 3600000) ? 'blink' : '';
         } else {
             display.innerText = "Brak nadchodzących meczów";
@@ -146,64 +132,55 @@
     function calculate() {
         let stats = { pts: [0,0,0,0,0], ideal: [0,0,0,0,0], win: [0,0,0,0,0], bad: [0,0,0,0,0] };
         const now = new Date().getTime();
-
         document.querySelectorAll('.match-row').forEach(row => {
-            const timeVal = row.querySelector('.match-time').value;
-            const matchTime = parseDate(timeVal);
-            const isFinished = matchTime && now > matchTime;
-            
+            const time = parseDate(row.querySelector('.match-time').value);
+            const isFinished = time && now > time;
             row.querySelectorAll('input[type="number"]:not(.real-field)').forEach(input => input.readOnly = isFinished);
             row.classList.toggle('finished-match', isFinished);
-
             const rh = parseInt(row.querySelector('.real-h').value);
             const ra = parseInt(row.querySelector('.real-a').value);
-            
             for (let i = 1; i <= 5; i++) {
                 const hIn = row.querySelector('.p' + i + '-h');
                 const aIn = row.querySelector('.p' + i + '-a');
-                const ih = parseInt(hIn.value);
-                const ia = parseInt(aIn.value);
-                
+                const ih = parseInt(hIn.value), ia = parseInt(aIn.value);
                 hIn.className = 'p' + i + '-h'; aIn.className = 'p' + i + '-a';
-
                 if (!isNaN(rh) && !isNaN(ra) && !isNaN(ih) && !isNaN(ia)) {
-                    if (ih === rh && ia === ra) {
-                        stats.ideal[i - 1]++; stats.pts[i - 1] += 3;
-                        hIn.classList.add('exact'); aIn.classList.add('exact');
-                    } else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) {
-                        stats.win[i - 1]++; stats.pts[i - 1] += 1;
-                        hIn.classList.add('win'); aIn.classList.add('win');
-                    } else {
-                        stats.bad[i - 1]++;
-                        hIn.classList.add('wrong'); aIn.classList.add('wrong');
-                    }
+                    if (ih === rh && ia === ra) { stats.ideal[i-1]++; stats.pts[i-1] += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
+                    else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
+                    else { stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
                 }
             }
         });
-
         const rKrol = document.getElementById('real-krol').value.trim().toLowerCase();
         const rMistrz = document.getElementById('real-mistrz').value.trim().toLowerCase();
-        
         for (let i = 1; i <= 5; i++) {
-            if (rKrol && document.getElementById('krol' + i).value.trim().toLowerCase() === rKrol) stats.pts[i - 1] += 5;
-            if (rMistrz && document.getElementById('mistrz' + i).value.trim().toLowerCase() === rMistrz) stats.pts[i - 1] += 5;
-            
-            document.getElementById('id' + i).innerText = stats.ideal[i - 1];
-            document.getElementById('win' + i).innerText = stats.win[i - 1];
-            document.getElementById('bad' + i).innerText = stats.bad[i - 1];
-            document.getElementById('pts' + i).innerText = stats.pts[i - 1];
+            if (rKrol && document.getElementById('krol' + i).value.trim().toLowerCase() === rKrol) stats.pts[i-1] += 5;
+            if (rMistrz && document.getElementById('mistrz' + i).value.trim().toLowerCase() === rMistrz) stats.pts[i-1] += 5;
+            document.getElementById('id' + i).innerText = stats.ideal[i-1];
+            document.getElementById('win' + i).innerText = stats.win[i-1];
+            document.getElementById('bad' + i).innerText = stats.bad[i-1];
+            document.getElementById('pts' + i).innerText = stats.pts[i-1];
         }
     }
 
     function saveData() {
-        const data = { scores: Array.from(document.querySelectorAll('input')).map(i => i.value) };
+        const allInputs = document.querySelectorAll('input');
+        const data = {};
+        allInputs.forEach((input, index) => {
+            data[input.id || index] = input.value;
+        });
         localStorage.setItem('typer2026', JSON.stringify(data));
-        alert('Zapisano!');
+        alert('Zapisano wszystko!');
     }
 
     window.onload = () => {
         const saved = JSON.parse(localStorage.getItem('typer2026'));
-        if (saved) document.querySelectorAll('input').forEach((el, i) => el.value = saved.scores[i] || '');
+        if (saved) {
+            Object.keys(saved).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = saved[key];
+            });
+        }
         sortMatches();
         calculate();
         setInterval(updateCountdown, 60000);
