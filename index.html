@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typer Mundial 2026</title>
+    <title>Typer Mundial 2026 - Administrator</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 5px; margin: 0; }
@@ -38,7 +38,7 @@
 
 <div class="typer-container">
     <div id="countdown">Ładowanie...</div>
-    <h1>MUNDIAL 2026</h1>
+    <h1>MUNDIAL 2026 - PANEL ADMINA</h1>
     
     <div class="table-wrapper">
         <table>
@@ -89,13 +89,12 @@
     
     <button class="btn-save" style="background: #1a3c6e;" onclick="saveData()">ZAPISZ LOKALNIE</button>
     <button class="btn-save" style="background: #28a745;" onclick="exportData()">POBIERZ JSON</button>
-    <button class="btn-save" style="background: #6c757d;" onclick="document.getElementById('importFile').click()">WCZYTAJ JSON</button>
+    <button class="btn-save" style="background: #6c757d;" onclick="document.getElementById('importFile').click()">DODAJ PLIK JSON (SCAL)</button>
     <input type="file" id="importFile" style="display:none" onchange="importData(event)">
 </div>
 
 <script>
-    // Zmienna do zmiany imienia gracza przed pobraniem pliku
-    const currentPlayer = "Gracz"; 
+    const currentPlayer = "Admin"; 
 
     function autoTab(el) { if (el.value.length >= el.getAttribute("maxlength")) { const inputs = Array.from(document.querySelectorAll('input[type="number"]')); const index = inputs.indexOf(el); if (index > -1 && inputs[index+1]) inputs[index+1].focus(); } }
     function parseDate(str) { const p = str.match(/(\d{2})\.(\d{2})\.(\d{2})\s(\d{2}):(\d{2})/); return p ? new Date(2000 + parseInt(p[3]), p[2] - 1, p[1], p[4], p[5]).getTime() : null; }
@@ -159,7 +158,7 @@
 
     function saveData() {
         const allInputs = document.querySelectorAll('input');
-        const data = { player: currentPlayer, values: {} };
+        const data = { values: {} };
         allInputs.forEach(input => { if (input.id) data.values[input.id] = input.value; });
         localStorage.setItem('typer2026', JSON.stringify(data));
         alert('Zapisano lokalnie!');
@@ -171,14 +170,26 @@
         const blob = new Blob([data], { type: "application/json" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "typy_" + currentPlayer + ".json";
+        a.download = "typy_mundial.json";
         a.click();
     }
 
     function importData(event) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            localStorage.setItem('typer2026', e.target.result);
+            const newData = JSON.parse(e.target.result);
+            const currentData = JSON.parse(localStorage.getItem('typer2026') || '{"values":{}}');
+            
+            const newValues = newData.values || newData;
+            // Scalanie: nowe dane dopisują się do starych, ale nie usuwamy pól 'real', jeśli już istnieją
+            Object.keys(newValues).forEach(key => {
+                if (!key.startsWith('rm') && key !== 'real-krol' && key !== 'real-mistrz') {
+                    currentData.values[key] = newValues[key];
+                }
+            });
+            
+            localStorage.setItem('typer2026', JSON.stringify(currentData));
+            alert('Wyniki scalone!');
             location.reload();
         };
         reader.readAsText(event.target.files[0]);
@@ -188,7 +199,7 @@
         const raw = localStorage.getItem('typer2026');
         if (raw) {
             const data = JSON.parse(raw);
-            const values = data.values || data; // Wsparcie dla starego i nowego formatu
+            const values = data.values || data;
             Object.keys(values).forEach(key => {
                 const el = document.getElementById(key);
                 if (el) el.value = values[key];
