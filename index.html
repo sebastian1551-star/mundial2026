@@ -25,7 +25,7 @@
         .ranking-table td, .ranking-table th { border: 1px solid #ddd; padding: 10px; text-align: center; }
         .extra-fields { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
         .extra-fields input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-        .btn-save { width: 100%; padding: 18px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin-top: 10px; }
+        .btn-save { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; color: white; }
         #countdown { text-align: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #1a3c6e; }
         .blink { animation: blinker 1s linear infinite; color: red !important; }
         @keyframes blinker { 50% { opacity: 0; } }
@@ -86,23 +86,20 @@
         <input type="text" id="real-krol" class="real-field" placeholder="Faktyczny Król" oninput="calculate()">
         <input type="text" id="real-mistrz" class="real-field" placeholder="Faktyczny Zwycięzca" oninput="calculate()">
     </div>
-    <button class="btn-save" onclick="saveData()">ZAPISZ WYNIKI</button>
+    
+    <button class="btn-save" style="background: #1a3c6e;" onclick="saveData()">ZAPISZ LOKALNIE</button>
+    <button class="btn-save" style="background: #28a745;" onclick="exportData()">POBIERZ JSON</button>
+    <button class="btn-save" style="background: #6c757d;" onclick="document.getElementById('importFile').click()">WCZYTAJ JSON</button>
+    <input type="file" id="importFile" style="display:none" onchange="importData(event)">
 </div>
 
 <script>
-    function autoTab(el) {
-        if (el.value.length >= el.getAttribute("maxlength")) {
-            const inputs = Array.from(document.querySelectorAll('input[type="number"]'));
-            const index = inputs.indexOf(el);
-            if (index > -1 && inputs[index + 1]) inputs[index + 1].focus();
-        }
-    }
+    // Zmienna do zmiany imienia gracza przed pobraniem pliku
+    const currentPlayer = "Gracz"; 
 
-    function parseDate(str) {
-        const p = str.match(/(\d{2})\.(\d{2})\.(\d{2})\s(\d{2}):(\d{2})/);
-        return p ? new Date(2000 + parseInt(p[3]), p[2] - 1, p[1], p[4], p[5]).getTime() : null;
-    }
-
+    function autoTab(el) { if (el.value.length >= el.getAttribute("maxlength")) { const inputs = Array.from(document.querySelectorAll('input[type="number"]')); const index = inputs.indexOf(el); if (index > -1 && inputs[index+1]) inputs[index+1].focus(); } }
+    function parseDate(str) { const p = str.match(/(\d{2})\.(\d{2})\.(\d{2})\s(\d{2}):(\d{2})/); return p ? new Date(2000 + parseInt(p[3]), p[2] - 1, p[1], p[4], p[5]).getTime() : null; }
+    
     function sortMatches() {
         const tbody = document.getElementById('matchBody');
         const rows = Array.from(document.querySelectorAll('.match-row'));
@@ -123,54 +120,36 @@
             const diff = closestTime - now;
             display.innerText = `Do najbliższego meczu: ${Math.floor(diff / 3600000)}h ${Math.floor((diff % 3600000) / 60000)}m`;
             display.className = (diff < 3600000) ? 'blink' : '';
-        } else {
-            display.innerText = "Brak nadchodzących meczów";
-            display.className = '';
-        }
+        } else { display.innerText = "Brak nadchodzących meczów"; display.className = ''; }
     }
 
     function calculate() {
         let stats = { pts: [0,0,0,0,0], ideal: [0,0,0,0,0], win: [0,0,0,0,0], bad: [0,0,0,0,0] };
         const now = new Date().getTime();
-
         document.querySelectorAll('.match-row').forEach(row => {
             const time = parseDate(row.querySelector('.match-time').value);
             const isFinished = time && now > time;
             row.querySelectorAll('input[type="number"]:not(.real-field)').forEach(input => input.readOnly = isFinished);
             row.classList.toggle('finished-match', isFinished);
-            
             const rh = parseInt(row.querySelector('.real-h').value);
             const ra = parseInt(row.querySelector('.real-a').value);
-            
             for (let i = 1; i <= 5; i++) {
                 const hIn = row.querySelector('.p' + i + '-h');
                 const aIn = row.querySelector('.p' + i + '-a');
                 const ih = parseInt(hIn.value), ia = parseInt(aIn.value);
-                
                 hIn.className = 'p' + i + '-h'; aIn.className = 'p' + i + '-a';
-
                 if (!isNaN(rh) && !isNaN(ra) && !isNaN(ih) && !isNaN(ia)) {
-                    if (ih === rh && ia === ra) {
-                        stats.ideal[i-1]++; stats.pts[i-1] += 3;
-                        hIn.classList.add('exact'); aIn.classList.add('exact');
-                    } else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) {
-                        stats.win[i-1]++; stats.pts[i-1] += 1;
-                        hIn.classList.add('win'); aIn.classList.add('win');
-                    } else {
-                        stats.bad[i-1]++;
-                        hIn.classList.add('wrong'); aIn.classList.add('wrong');
-                    }
+                    if (ih === rh && ia === ra) { stats.ideal[i-1]++; stats.pts[i-1] += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
+                    else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
+                    else { stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
                 }
             }
         });
-
         const rKrol = document.getElementById('real-krol').value.trim().toLowerCase();
         const rMistrz = document.getElementById('real-mistrz').value.trim().toLowerCase();
-        
         for (let i = 1; i <= 5; i++) {
             if (rKrol && document.getElementById('krol' + i).value.trim().toLowerCase() === rKrol) stats.pts[i-1] += 5;
             if (rMistrz && document.getElementById('mistrz' + i).value.trim().toLowerCase() === rMistrz) stats.pts[i-1] += 5;
-            
             document.getElementById('id' + i).innerText = stats.ideal[i-1];
             document.getElementById('win' + i).innerText = stats.win[i-1];
             document.getElementById('bad' + i).innerText = stats.bad[i-1];
@@ -180,18 +159,39 @@
 
     function saveData() {
         const allInputs = document.querySelectorAll('input');
-        const data = {};
-        allInputs.forEach(input => { if (input.id) data[input.id] = input.value; });
+        const data = { player: currentPlayer, values: {} };
+        allInputs.forEach(input => { if (input.id) data.values[input.id] = input.value; });
         localStorage.setItem('typer2026', JSON.stringify(data));
-        alert('Wyniki zostały zapisane!');
+        alert('Zapisano lokalnie!');
+    }
+
+    function exportData() {
+        const data = localStorage.getItem('typer2026');
+        if (!data) return alert("Brak danych!");
+        const blob = new Blob([data], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "typy_" + currentPlayer + ".json";
+        a.click();
+    }
+
+    function importData(event) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            localStorage.setItem('typer2026', e.target.result);
+            location.reload();
+        };
+        reader.readAsText(event.target.files[0]);
     }
 
     window.onload = () => {
-        const saved = JSON.parse(localStorage.getItem('typer2026'));
-        if (saved) {
-            Object.keys(saved).forEach(key => {
+        const raw = localStorage.getItem('typer2026');
+        if (raw) {
+            const data = JSON.parse(raw);
+            const values = data.values || data; // Wsparcie dla starego i nowego formatu
+            Object.keys(values).forEach(key => {
                 const el = document.getElementById(key);
-                if (el) el.value = saved[key];
+                if (el) el.value = values[key];
             });
         }
         sortMatches();
