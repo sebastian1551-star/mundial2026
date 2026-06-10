@@ -7,7 +7,6 @@
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 10px; }
         .typer-container { background: #fff; padding: 20px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* Retro Timer */
         #countdown { 
             text-align: center; font-family: 'Courier New', monospace; 
             font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; 
@@ -19,7 +18,8 @@
         th { background: #1a3c6e; color: #fff; padding: 10px; }
         td { padding: 8px; border: 1px solid #ddd; text-align: center; }
         
-        input[type=number] { width: 30px; height: 30px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        /* Styl pól tekstowych bez strzałek */
+        input[type=text] { width: 25px; height: 25px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
         input:disabled { background-color: #ddd; cursor: not-allowed; }
         
         .real { background-color: #e9ecef; }
@@ -64,21 +64,24 @@
         { name: "USA - Paragwaj", time: "2026-06-13T03:00:00" },
         { name: "Katar - Szwajcaria", time: "2026-06-13T21:00:00" },
         { name: "Brazylia - Maroko", time: "2026-06-14T00:00:00" },
-        { name: "Haiti - Szkocja", time: "2026-06-14T03:00:00" },
-        { name: "Australia - Turcja", time: "2026-06-14T06:00:00" },
-        { name: "Niemcy - Curacao", time: "2026-06-14T19:00:00" },
-        { name: "Holandia - Japonia", time: "2026-06-14T22:00:00" },
-        { name: "WKS - Ekwador", time: "2026-06-15T01:00:00" },
-        { name: "Szwecja - Tunezja", time: "2026-06-15T04:00:00" },
-        { name: "Hiszpania - Rep. Zielonego Przylądka", time: "2026-06-15T18:00:00" },
-        { name: "Belgia - Egipt", time: "2026-06-15T21:00:00" }
+        { name: "Haiti - Szkocja", time: "2026-06-14T03:00:00" }
     ];
+
+    // Funkcja autotab
+    function handleInput(e) {
+        if (e.target.value.length >= 1) {
+            const inputs = Array.from(document.querySelectorAll('input[type="text"]'));
+            const index = inputs.indexOf(e.target);
+            if (index > -1 && inputs[index + 1]) inputs[index + 1].focus();
+        }
+        calculate();
+    }
 
     function init() {
         const extra = document.getElementById('extraInputs');
         players.forEach((p, i) => {
             extra.innerHTML += `<div class="extra-box"><strong>${p}</strong>
-                <input type="text" id="krol${i}" placeholder="Król strzelców" oninput="calculate()">
+                <input type="text" id="krol${i}" placeholder="Król" oninput="calculate()">
                 <input type="text" id="mistrz${i}" placeholder="Zwycięzca" oninput="calculate()"></div>`;
         });
         extra.innerHTML += `<div class="extra-box" style="border-left:2px solid #aaa; padding-left:10px"><strong>REAL</strong>
@@ -90,8 +93,8 @@
         matches.forEach((m, i) => {
             const isStarted = now > new Date(m.time);
             let row = `<tr class="${isStarted ? 'finished' : ''}"><td>${m.time.substring(11, 16)}</td><td>${m.name}</td>`;
-            players.forEach((_, p) => row += `<td><input type="number" class="p${p}h" data-m="${i}" ${isStarted ? 'disabled' : ''}>:<input type="number" class="p${p}a" data-m="${i}" ${isStarted ? 'disabled' : ''}></td>`);
-            row += `<td><input type="number" class="rh" data-m="${i}" class="real">:<input type="number" class="ra" data-m="${i}" class="real"></td></tr>`;
+            players.forEach((_, p) => row += `<td><input type="text" class="p${p}h" data-m="${i}" maxlength="1" oninput="handleInput(event)" ${isStarted ? 'disabled' : ''}>:<input type="text" class="p${p}a" data-m="${i}" maxlength="1" oninput="handleInput(event)" ${isStarted ? 'disabled' : ''}></td>`);
+            row += `<td><input type="text" class="rh" data-m="${i}" maxlength="1" oninput="handleInput(event)" class="real">:<input type="text" class="ra" data-m="${i}" maxlength="1" oninput="handleInput(event)" class="real"></td></tr>`;
             tbody.innerHTML += row;
         });
     }
