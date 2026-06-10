@@ -21,8 +21,14 @@
         .exact { background-color: #28a745 !important; color: white !important; border-color: #1e7e34 !important; }
         .win { background-color: #ffc107 !important; border-color: #d39e00 !important; }
         .wrong { background-color: #dc3545 !important; color: white !important; border-color: #bd2130 !important; }
+        
         .ranking-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
         .ranking-table td, .ranking-table th { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        
+        /* Nowe style dla rankingu */
+        .rank-first { background-color: #d4edda !important; font-weight: bold; }
+        .rank-last { background-color: #f8d7da !important; }
+        
         .extra-fields { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
         .extra-fields input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
         .btn-save { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; color: white; }
@@ -65,11 +71,11 @@
     <table class="ranking-table">
         <thead><tr><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
         <tbody id="rankingBody">
-            <tr id="row1"><td>Oniszk</td><td id="id1">0</td><td id="win1">0</td><td id="bad1">0</td><td id="pts1">0</td></tr>
-            <tr id="row2"><td>Sebix</td><td id="id2">0</td><td id="win2">0</td><td id="bad2">0</td><td id="pts2">0</td></tr>
-            <tr id="row3"><td>Adaś</td><td id="id3">0</td><td id="win3">0</td><td id="bad3">0</td><td id="pts3">0</td></tr>
-            <tr id="row4"><td>Kuba</td><td id="id4">0</td><td id="win4">0</td><td id="bad4">0</td><td id="pts4">0</td></tr>
-            <tr id="row5"><td>Maksym</td><td id="id5">0</td><td id="win5">0</td><td id="bad5">0</td><td id="pts5">0</td></tr>
+            <tr class="rank-row" id="row1"><td class="name">Oniszk</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
+            <tr class="rank-row" id="row2"><td class="name">Sebix</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
+            <tr class="rank-row" id="row3"><td class="name">Adaś</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
+            <tr class="rank-row" id="row4"><td class="name">Kuba</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
+            <tr class="rank-row" id="row5"><td class="name">Maksym</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
         </tbody>
     </table>
 
@@ -121,37 +127,59 @@
     }
 
     function calculate() {
-        let stats = { pts: [0,0,0,0,0], ideal: [0,0,0,0,0], win: [0,0,0,0,0], bad: [0,0,0,0,0] };
+        let players = [1,2,3,4,5].map(i => ({
+            id: i, name: document.querySelector(`#row${i} .name`).innerText,
+            pts: 0, ideal: 0, win: 0, bad: 0
+        }));
+        
         const now = new Date().getTime();
         document.querySelectorAll('.match-row').forEach(row => {
             const time = parseDate(row.querySelector('.match-time').value);
             const isFinished = time && now > time;
             row.querySelectorAll('input[type="number"]:not(.real-field)').forEach(input => input.readOnly = isFinished);
             row.classList.toggle('finished-match', isFinished);
+            
             const rh = parseInt(row.querySelector('.real-h').value);
             const ra = parseInt(row.querySelector('.real-a').value);
-            for (let i = 1; i <= 5; i++) {
-                const hIn = row.querySelector('.p' + i + '-h');
-                const aIn = row.querySelector('.p' + i + '-a');
+            
+            players.forEach((p, idx) => {
+                const hIn = row.querySelector('.p' + p.id + '-h');
+                const aIn = row.querySelector('.p' + p.id + '-a');
                 const ih = parseInt(hIn.value), ia = parseInt(aIn.value);
-                hIn.className = 'p' + i + '-h'; aIn.className = 'p' + i + '-a';
+                hIn.className = 'p' + p.id + '-h'; aIn.className = 'p' + p.id + '-a';
                 if (!isNaN(rh) && !isNaN(ra) && !isNaN(ih) && !isNaN(ia)) {
-                    if (ih === rh && ia === ra) { stats.ideal[i-1]++; stats.pts[i-1] += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
-                    else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { stats.win[i-1]++; stats.pts[i-1] += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
-                    else { stats.bad[i-1]++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
+                    if (ih === rh && ia === ra) { p.ideal++; p.pts += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
+                    else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { p.win++; p.pts += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
+                    else { p.bad++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
                 }
-            }
+            });
         });
+
         const rKrol = document.getElementById('real-krol').value.trim().toLowerCase();
         const rMistrz = document.getElementById('real-mistrz').value.trim().toLowerCase();
-        for (let i = 1; i <= 5; i++) {
-            if (rKrol && document.getElementById('krol' + i).value.trim().toLowerCase() === rKrol) stats.pts[i-1] += 5;
-            if (rMistrz && document.getElementById('mistrz' + i).value.trim().toLowerCase() === rMistrz) stats.pts[i-1] += 5;
-            document.getElementById('id' + i).innerText = stats.ideal[i-1];
-            document.getElementById('win' + i).innerText = stats.win[i-1];
-            document.getElementById('bad' + i).innerText = stats.bad[i-1];
-            document.getElementById('pts' + i).innerText = stats.pts[i-1];
-        }
+        players.forEach(p => {
+            if (rKrol && document.getElementById('krol' + p.id).value.trim().toLowerCase() === rKrol) p.pts += 5;
+            if (rMistrz && document.getElementById('mistrz' + p.id).value.trim().toLowerCase() === rMistrz) p.pts += 5;
+        });
+
+        // Sortowanie graczy
+        players.sort((a, b) => b.pts - a.pts);
+        
+        // Aktualizacja tabeli rankingowej
+        const rankingBody = document.getElementById('rankingBody');
+        players.forEach((p, index) => {
+            const row = document.getElementById('row' + p.id);
+            rankingBody.appendChild(row); // Przesuwa wiersz na odpowiednią pozycję
+            row.querySelector('.id').innerText = p.ideal;
+            row.querySelector('.win').innerText = p.win;
+            row.querySelector('.bad').innerText = p.bad;
+            row.querySelector('.pts').innerText = p.pts;
+            
+            // Stylizacja
+            row.classList.remove('rank-first', 'rank-last');
+            if (index === 0) row.classList.add('rank-first');
+            if (index === players.length - 1) row.classList.add('rank-last');
+        });
     }
 
     function saveData() {
@@ -177,17 +205,13 @@
         reader.onload = function(e) {
             const newData = JSON.parse(e.target.result);
             const currentData = JSON.parse(localStorage.getItem('typer2026') || '{"values":{}}');
-            
             const newValues = newData.values || newData;
             Object.keys(newValues).forEach(key => {
-                // Nie nadpisujemy realnych wyników administratora (rm, real-krol, real-mistrz)
                 if (!key.startsWith('rm') && key !== 'real-krol' && key !== 'real-mistrz') {
                     currentData.values[key] = newValues[key];
                 }
             });
-            
             localStorage.setItem('typer2026', JSON.stringify(currentData));
-            alert('Wyniki scalone i zapisane!');
             location.reload();
         };
         reader.readAsText(event.target.files[0]);
