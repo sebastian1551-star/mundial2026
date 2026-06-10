@@ -2,30 +2,44 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Typer Mundial 2026 - Panel</title>
+    <title>Typer Mundial 2026 - Retro Panel</title>
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 10px; }
         .typer-container { background: #fff; padding: 20px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* Retro Timer */
+        #countdown { 
+            text-align: center; font-family: 'Courier New', monospace; 
+            font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; 
+            background: #000; color: #0f0; padding: 15px; border-radius: 5px; 
+            text-shadow: 0 0 5px #0f0;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
         th { background: #1a3c6e; color: #fff; padding: 10px; }
         td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+        
         input[type=number] { width: 30px; height: 30px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        input:disabled { background-color: #ddd; cursor: not-allowed; }
+        
         .real { background-color: #e9ecef; }
+        .finished { background-color: #f8f9fa; opacity: 0.6; }
+        
         .extra-section { display: flex; justify-content: space-around; background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .extra-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        
         .rank-first { background-color: #28a745 !important; color: white; font-weight: bold; }
         .rank-last { background-color: #dc3545 !important; color: white; }
-        #countdown { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #1a3c6e; }
-        .btn-save { width: 100%; padding: 15px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 10px; }
+        
+        .btn-save { width: 100%; padding: 15px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="typer-container">
-    <div id="countdown">Ładowanie...</div>
+    <div id="countdown">ŁADOWANIE...</div>
     
-    <div class="extra-section" id="extraInputs">
-        </div>
+    <div class="extra-section" id="extraInputs"></div>
 
     <h1>MUNDIAL 2026 - TYPER</h1>
     <table>
@@ -36,13 +50,7 @@
     <h3>Ranking Graczy</h3>
     <table class="ranking-table">
         <thead><tr><th>Miejsce</th><th>Gracz</th><th>Punkty</th></tr></thead>
-        <tbody id="rankingBody">
-            <tr id="r1"><td>1</td><td>Oniszk</td><td class="pts">0</td></tr>
-            <tr id="r2"><td>2</td><td>Sebix</td><td class="pts">0</td></tr>
-            <tr id="r3"><td>3</td><td>Adaś</td><td class="pts">0</td></tr>
-            <tr id="r4"><td>4</td><td>Kuba</td><td class="pts">0</td></tr>
-            <tr id="r5"><td>5</td><td>Maksym</td><td class="pts">0</td></tr>
-        </tbody>
+        <tbody id="rankingBody"></tbody>
     </table>
     <button class="btn-save" onclick="saveData()">ZAPISZ WYNIKI</button>
 </div>
@@ -67,7 +75,6 @@
     ];
 
     function init() {
-        // Extra Inputs
         const extra = document.getElementById('extraInputs');
         players.forEach((p, i) => {
             extra.innerHTML += `<div class="extra-box"><strong>${p}</strong>
@@ -78,11 +85,12 @@
             <input type="text" id="realKrol" placeholder="Faktyczny Król" oninput="calculate()" class="real">
             <input type="text" id="realMistrz" placeholder="Faktyczny Mistrz" oninput="calculate()" class="real"></div>`;
 
-        // Matches
         const tbody = document.getElementById('matchBody');
+        const now = new Date();
         matches.forEach((m, i) => {
-            let row = `<tr><td>${m.time.substring(11, 16)}</td><td>${m.name}</td>`;
-            players.forEach((_, p) => row += `<td><input type="number" class="p${p}h" data-m="${i}">:<input type="number" class="p${p}a" data-m="${i}"></td>`);
+            const isStarted = now > new Date(m.time);
+            let row = `<tr class="${isStarted ? 'finished' : ''}"><td>${m.time.substring(11, 16)}</td><td>${m.name}</td>`;
+            players.forEach((_, p) => row += `<td><input type="number" class="p${p}h" data-m="${i}" ${isStarted ? 'disabled' : ''}>:<input type="number" class="p${p}a" data-m="${i}" ${isStarted ? 'disabled' : ''}></td>`);
             row += `<td><input type="number" class="rh" data-m="${i}" class="real">:<input type="number" class="ra" data-m="${i}" class="real"></td></tr>`;
             tbody.innerHTML += row;
         });
@@ -93,21 +101,19 @@
         const rKrol = document.getElementById('realKrol').value.toLowerCase();
         const rMistrz = document.getElementById('realMistrz').value.toLowerCase();
 
-        // Punkty za mecze
         matches.forEach((m, i) => {
             let rh = document.querySelector(`.rh[data-m="${i}"]`).value;
             let ra = document.querySelector(`.ra[data-m="${i}"]`).value;
-            if(rh === "" || ra === "") return;
             players.forEach((_, p) => {
                 let ph = document.querySelector(`.p${p}h[data-m="${i}"]`).value;
                 let pa = document.querySelector(`.p${p}a[data-m="${i}"]`).value;
-                if(ph === "" || pa === "") return;
-                if(ph == rh && pa == ra) scores[p] += 3;
-                else if((ph > pa && rh > ra) || (ph < pa && rh < ra) || (ph == pa && rh == ra)) scores[p] += 1;
+                if(ph !== "" && pa !== "" && rh !== "" && ra !== "") {
+                    if (ph == rh && pa == ra) scores[p] += 3;
+                    else if ((ph > pa && rh > ra) || (ph < pa && rh < ra) || (ph == pa && rh == ra)) scores[p] += 1;
+                }
             });
         });
 
-        // Punkty za typy dodatkowe
         players.forEach((_, i) => {
             if(rKrol && document.getElementById('krol'+i).value.toLowerCase() === rKrol) scores[i] += 5;
             if(rMistrz && document.getElementById('mistrz'+i).value.toLowerCase() === rMistrz) scores[i] += 5;
@@ -127,24 +133,23 @@
     function updateTimer() {
         const now = new Date();
         let next = matches.map(m => new Date(m.time)).find(t => t > now);
-        if(!next) { document.getElementById('countdown').innerText = "Mecze w toku"; return; }
+        if(!next) { document.getElementById('countdown').innerText = "MECZE ZAKOŃCZONE"; return; }
         let diff = next - now;
         let d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-        document.getElementById('countdown').innerText = `Do najbliższego meczu: ${d}d ${h}h ${m}m ${s}s`;
+        document.getElementById('countdown').innerText = `DO MECZU: ${d}d ${h}h ${m}m ${s}s`.toUpperCase();
     }
 
     function saveData() {
         let data = {};
         document.querySelectorAll('input').forEach(i => data[i.id || (i.className + i.dataset.m)] = i.value);
         localStorage.setItem('typer2026', JSON.stringify(data));
-        alert('Zapisano!');
+        alert('Wyniki zapisane!');
     }
 
     window.onload = () => {
         init();
         let saved = JSON.parse(localStorage.getItem('typer2026') || "{}");
         document.querySelectorAll('input').forEach(i => i.value = saved[i.id || (i.className + i.dataset.m)] || "");
-        document.querySelectorAll('input').forEach(i => i.oninput = () => { calculate(); });
         setInterval(updateTimer, 1000);
         calculate();
     };
