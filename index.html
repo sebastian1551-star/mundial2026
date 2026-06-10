@@ -2,158 +2,97 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Typer Mundial 2026 - Retro Panel</title>
+    <title>Mundial 2026 - Kompletny Typer</title>
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 10px; }
-        .typer-container { background: #fff; padding: 20px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        #countdown { 
-            text-align: center; font-family: 'Courier New', monospace; 
-            font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; 
-            background: #000; color: #0f0; padding: 15px; border-radius: 5px; 
-            text-shadow: 0 0 5px #0f0;
-        }
-
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
-        th { background: #1a3c6e; color: #fff; padding: 10px; }
-        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-        
-        /* Styl pól tekstowych bez strzałek */
-        input[type=text] { width: 25px; height: 25px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
-        input:disabled { background-color: #ddd; cursor: not-allowed; }
-        
-        .real { background-color: #e9ecef; }
-        .finished { background-color: #f8f9fa; opacity: 0.6; }
-        
-        .extra-section { display: flex; justify-content: space-around; background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .extra-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        
-        .rank-first { background-color: #28a745 !important; color: white; font-weight: bold; }
-        .rank-last { background-color: #dc3545 !important; color: white; }
-        
-        .btn-save { width: 100%; padding: 15px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+        :root { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #00e676; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: var(--card); padding: 20px; border-radius: 12px; }
+        h1, h2 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 8px; border: 1px solid #333; text-align: center; }
+        input { width: 30px; height: 30px; text-align: center; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px; }
+        input:disabled { opacity: 0.6; }
+        .exact { background-color: #2e7d32 !important; }
+        .win { background-color: #f9a825 !important; }
+        .wrong { background-color: #c62828 !important; }
+        .extra-section { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .player-box { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; }
+        .btn-save { width: 100%; padding: 15px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
     </style>
 </head>
 <body>
-
-<div class="typer-container">
-    <div id="countdown">ŁADOWANIE...</div>
+<div class="container">
+    <h1>MUNDIAL 2026 - TYPER</h1>
     
     <div class="extra-section" id="extraInputs"></div>
 
-    <h1>MUNDIAL 2026 - TYPER</h1>
-    <table>
-        <thead><tr><th>Godz.</th><th>Mecz</th><th>Oniszk</th><th>Sebix</th><th>Adaś</th><th>Kuba</th><th>Maksym</th><th>Real</th></tr></thead>
+    <table id="matchTable">
+        <thead><tr id="headRow"></tr></thead>
         <tbody id="matchBody"></tbody>
     </table>
-
-    <h3>Ranking Graczy</h3>
-    <table class="ranking-table">
-        <thead><tr><th>Miejsce</th><th>Gracz</th><th>Punkty</th></tr></thead>
-        <tbody id="rankingBody"></tbody>
-    </table>
-    <button class="btn-save" onclick="saveData()">ZAPISZ WYNIKI</button>
+    
+    <button class="btn-save" onclick="saveData()">ZAPISZ TYPY</button>
 </div>
 
 <script>
     const players = ["Oniszk", "Sebix", "Adaś", "Kuba", "Maksym"];
     const matches = [
-        { name: "Meksyk - RPA", time: "2026-06-11T21:00:00" },
-        { name: "Korea Płd - Czechy", time: "2026-06-12T04:00:00" },
-        { name: "Kanada - Bośnia", time: "2026-06-12T21:00:00" },
-        { name: "USA - Paragwaj", time: "2026-06-13T03:00:00" },
-        { name: "Katar - Szwajcaria", time: "2026-06-13T21:00:00" },
-        { name: "Brazylia - Maroko", time: "2026-06-14T00:00:00" },
-        { name: "Haiti - Szkocja", time: "2026-06-14T03:00:00" }
+        { name: "Meksyk-RPA", time: "2026-06-11T21:00:00" }, { name: "Korea-Czechy", time: "2026-06-12T04:00:00" },
+        { name: "Kanada-Bośnia", time: "2026-06-12T21:00:00" }, { name: "USA-Paragwaj", time: "2026-06-13T03:00:00" },
+        { name: "Katar-Szwajcaria", time: "2026-06-13T21:00:00" }, { name: "Brazylia-Maroko", time: "2026-06-14T00:00:00" },
+        { name: "Haiti-Szkocja", time: "2026-06-14T03:00:00" }, { name: "Australia-Turcja", time: "2026-06-14T06:00:00" },
+        { name: "Niemcy-Curacao", time: "2026-06-14T19:00:00" }, { name: "Holandia-Japonia", time: "2026-06-14T22:00:00" },
+        { name: "WKS-Ekwador", time: "2026-06-15T01:00:00" }, { name: "Szwecja-Tunezja", time: "2026-06-15T04:00:00" },
+        { name: "Hiszpania-Ziel.Przyl.", time: "2026-06-15T18:00:00" }, { name: "Belgia-Egipt", time: "2026-06-15T21:00:00" }
     ];
-
-    // Funkcja autotab
-    function handleInput(e) {
-        if (e.target.value.length >= 1) {
-            const inputs = Array.from(document.querySelectorAll('input[type="text"]'));
-            const index = inputs.indexOf(e.target);
-            if (index > -1 && inputs[index + 1]) inputs[index + 1].focus();
-        }
-        calculate();
-    }
 
     function init() {
         const extra = document.getElementById('extraInputs');
-        players.forEach((p, i) => {
-            extra.innerHTML += `<div class="extra-box"><strong>${p}</strong>
-                <input type="text" id="krol${i}" placeholder="Król" oninput="calculate()">
-                <input type="text" id="mistrz${i}" placeholder="Zwycięzca" oninput="calculate()"></div>`;
+        [...players, "REAL"].forEach((p, i) => {
+            extra.innerHTML += `<div class="player-box"><b>${p}</b><br>
+                <input type="text" id="k${i}" placeholder="Król" style="width:60px">
+                <input type="text" id="m${i}" placeholder="Mistrz" style="width:60px"></div>`;
         });
-        extra.innerHTML += `<div class="extra-box" style="border-left:2px solid #aaa; padding-left:10px"><strong>REAL</strong>
-            <input type="text" id="realKrol" placeholder="Faktyczny Król" oninput="calculate()" class="real">
-            <input type="text" id="realMistrz" placeholder="Faktyczny Mistrz" oninput="calculate()" class="real"></div>`;
+
+        const headRow = document.getElementById('headRow');
+        headRow.innerHTML = '<th>Mecz</th>' + players.map(p => `<th>${p}</th>`).join('') + '<th>REAL</th>';
 
         const tbody = document.getElementById('matchBody');
-        const now = new Date();
         matches.forEach((m, i) => {
-            const isStarted = now > new Date(m.time);
-            let row = `<tr class="${isStarted ? 'finished' : ''}"><td>${m.time.substring(11, 16)}</td><td>${m.name}</td>`;
-            players.forEach((_, p) => row += `<td><input type="text" class="p${p}h" data-m="${i}" maxlength="1" oninput="handleInput(event)" ${isStarted ? 'disabled' : ''}>:<input type="text" class="p${p}a" data-m="${i}" maxlength="1" oninput="handleInput(event)" ${isStarted ? 'disabled' : ''}></td>`);
-            row += `<td><input type="text" class="rh" data-m="${i}" maxlength="1" oninput="handleInput(event)" class="real">:<input type="text" class="ra" data-m="${i}" maxlength="1" oninput="handleInput(event)" class="real"></td></tr>`;
+            const locked = new Date() > new Date(m.time);
+            let row = `<tr><td>${m.name}</td>`;
+            players.forEach((_, p) => row += `<td><input type="text" class="p${p}h${i}" ${locked?'disabled':''}>:<input type="text" class="p${p}a${i}" ${locked?'disabled':''}></td>`);
+            row += `<td><input type="text" class="rh${i}">:<input type="text" class="ra${i}"></td></tr>`;
             tbody.innerHTML += row;
         });
     }
 
     function calculate() {
-        let scores = [0,0,0,0,0];
-        const rKrol = document.getElementById('realKrol').value.toLowerCase();
-        const rMistrz = document.getElementById('realMistrz').value.toLowerCase();
-
         matches.forEach((m, i) => {
-            let rh = document.querySelector(`.rh[data-m="${i}"]`).value;
-            let ra = document.querySelector(`.ra[data-m="${i}"]`).value;
+            let rh = document.querySelector(`.rh${i}`).value, ra = document.querySelector(`.ra${i}`).value;
             players.forEach((_, p) => {
-                let ph = document.querySelector(`.p${p}h[data-m="${i}"]`).value;
-                let pa = document.querySelector(`.p${p}a[data-m="${i}"]`).value;
-                if(ph !== "" && pa !== "" && rh !== "" && ra !== "") {
-                    if (ph == rh && pa == ra) scores[p] += 3;
-                    else if ((ph > pa && rh > ra) || (ph < pa && rh < ra) || (ph == pa && rh == ra)) scores[p] += 1;
+                let h = document.querySelector(`.p${p}h${i}`), a = document.querySelector(`.p${p}a${i}`);
+                h.classList.remove('exact', 'win', 'wrong'); a.classList.remove('exact', 'win', 'wrong');
+                if(h.value && a.value && rh && ra) {
+                    if(h.value == rh && a.value == ra) { h.classList.add('exact'); a.classList.add('exact'); }
+                    else if((h.value > a.value && rh > ra) || (h.value < a.value && rh < ra) || (h.value == a.value && rh == ra)) { h.classList.add('win'); a.classList.add('win'); }
+                    else { h.classList.add('wrong'); a.classList.add('wrong'); }
                 }
             });
         });
-
-        players.forEach((_, i) => {
-            if(rKrol && document.getElementById('krol'+i).value.toLowerCase() === rKrol) scores[i] += 5;
-            if(rMistrz && document.getElementById('mistrz'+i).value.toLowerCase() === rMistrz) scores[i] += 5;
-        });
-
-        let rankings = players.map((n, i) => ({n, s: scores[i]}));
-        rankings.sort((a,b) => b.s - a.s);
-
-        const rBody = document.getElementById('rankingBody');
-        rBody.innerHTML = "";
-        rankings.forEach((r, i) => {
-            let cls = i === 0 ? "rank-first" : (i === 4 ? "rank-last" : "");
-            rBody.innerHTML += `<tr class="${cls}"><td>${i+1}</td><td>${r.n}</td><td>${r.s}</td></tr>`;
-        });
-    }
-
-    function updateTimer() {
-        const now = new Date();
-        let next = matches.map(m => new Date(m.time)).find(t => t > now);
-        if(!next) { document.getElementById('countdown').innerText = "MECZE ZAKOŃCZONE"; return; }
-        let diff = next - now;
-        let d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-        document.getElementById('countdown').innerText = `DO MECZU: ${d}d ${h}h ${m}m ${s}s`.toUpperCase();
     }
 
     function saveData() {
-        let data = {};
-        document.querySelectorAll('input').forEach(i => data[i.id || (i.className + i.dataset.m)] = i.value);
+        let data = {}; document.querySelectorAll('input').forEach(i => data[i.id || i.className] = i.value);
         localStorage.setItem('typer2026', JSON.stringify(data));
-        alert('Wyniki zapisane!');
+        alert('Zapisano!');
     }
 
-    window.onload = () => {
-        init();
-        let saved = JSON.parse(localStorage.getItem('typer2026') || "{}");
-        document.querySelectorAll('input').forEach(i => i.value = saved[i.id || (i.className + i.dataset.m)] || "");
-        setInterval(updateTimer, 1000);
+    window.onload = () => { 
+        init(); 
+        let s = JSON.parse(localStorage.getItem('typer2026') || '{}');
+        Object.keys(s).forEach(k => { let el = document.getElementById(k) || document.querySelector('.'+k); if(el) el.value = s[k]; });
+        document.querySelectorAll('input').forEach(i => i.oninput = calculate);
         calculate();
     };
 </script>
