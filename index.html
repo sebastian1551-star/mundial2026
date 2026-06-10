@@ -2,234 +2,151 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typer Mundial 2026 - Panel Admina</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Typer Mundial 2026 - Panel</title>
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 5px; margin: 0; }
-        .typer-container { background: #fff; padding: 10px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
-        th { background: #1a3c6e; color: #fff; padding: 12px 5px; }
-        td { padding: 8px 4px; border-bottom: 1px solid #eee; text-align: center; }
-        .score-box { display: flex; align-items: center; justify-content: center; gap: 2px; }
-        input[type=number] { width: 28px; height: 35px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; -moz-appearance: textfield; padding: 0; }
-        input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .separator { font-weight: bold; color: #555; }
-        .match-time { width: 80px; font-size: 0.7rem; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .real-field { background-color: #e9ecef !important; border-color: #adb5bd !important; }
-        .exact { background-color: #28a745 !important; color: white !important; border-color: #1e7e34 !important; }
-        .win { background-color: #ffc107 !important; border-color: #d39e00 !important; }
-        .wrong { background-color: #dc3545 !important; color: white !important; border-color: #bd2130 !important; }
-        
-        .ranking-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
-        .ranking-table td, .ranking-table th { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        
-        /* Nowe style dla rankingu */
-        .rank-first { background-color: #d4edda !important; font-weight: bold; }
-        .rank-last { background-color: #f8d7da !important; }
-        
-        .extra-fields { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-        .extra-fields input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; }
-        .btn-save { width: 100%; padding: 15px; margin-top: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: bold; color: white; }
-        #countdown { text-align: center; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; color: #1a3c6e; }
-        .blink { animation: blinker 1s linear infinite; color: red !important; }
-        @keyframes blinker { 50% { opacity: 0; } }
-        input:read-only { background-color: #f8f9fa; cursor: not-allowed; }
-        .finished-match { opacity: 0.6; background-color: #fafafa; }
-        h1, h3, h4 { text-align: center; }
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; padding: 10px; }
+        .typer-container { background: #fff; padding: 20px; border-radius: 12px; max-width: 1000px; margin: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem; }
+        th { background: #1a3c6e; color: #fff; padding: 10px; }
+        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+        input[type=number] { width: 30px; height: 30px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .real { background-color: #e9ecef; }
+        .extra-section { display: flex; justify-content: space-around; background: #eef; padding: 10px; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .extra-box { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .rank-first { background-color: #28a745 !important; color: white; font-weight: bold; }
+        .rank-last { background-color: #dc3545 !important; color: white; }
+        #countdown { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; color: #1a3c6e; }
+        .btn-save { width: 100%; padding: 15px; background: #1a3c6e; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="typer-container">
     <div id="countdown">Ładowanie...</div>
-    <h1>MUNDIAL 2026 - PANEL ADMINA</h1>
     
-    <div class="table-wrapper">
-        <table>
-            <thead><tr><th>Godz.</th><th>Mecz</th><th>Oniszk</th><th>Sebix</th><th>Adaś</th><th>Kuba</th><th>Maksym</th><th>Real</th></tr></thead>
-            <tbody id="matchBody">
-                <script>
-                    const matches = ["Meksyk-RPA", "Korea Płd-Czechy", "Kanada-Bośnia", "USA-Paragwaj", "Katar-Szwajcaria", "Brazylia-Maroko", "Haiti-Szkocja", "Australia-Turcja", "Niemcy-Curacao", "Holandia-Japonia", "WKS-Ekwador", "Szwecja-Tunezja", "Hiszpania-Rep. Zielonego Przylądka", "Belgia-Egipt"];
-                    matches.forEach((m, idx) => {
-                        let row = `<tr data-match="${idx+1}" class="match-row">
-                            <td><input type="text" class="match-time" id="time-${idx}" placeholder="13.06.26 15:30" onblur="sortMatches()"></td>
-                            <td><strong>${m}</strong></td>`;
-                        for(let i=1; i<=5; i++) {
-                            row += `<td><div class="score-box"><input type="number" id="p${i}m${idx}h" class="p${i}-h" maxlength="1" oninput="calculate(); autoTab(this)"><span class="separator">:</span><input type="number" id="p${i}m${idx}a" class="p${i}-a" maxlength="1" oninput="calculate(); autoTab(this)"></div></td>`;
-                        }
-                        row += `<td><div class="score-box"><input type="number" id="rm${idx}h" class="real-h real-field" maxlength="1" oninput="calculate(); autoTab(this)"><span class="separator">:</span><input type="number" id="rm${idx}a" class="real-a real-field" maxlength="1" oninput="calculate(); autoTab(this)"></div></td></tr>`;
-                        document.write(row);
-                    });
-                </script>
-            </tbody>
-        </table>
-    </div>
+    <div class="extra-section" id="extraInputs">
+        </div>
+
+    <h1>MUNDIAL 2026 - TYPER</h1>
+    <table>
+        <thead><tr><th>Godz.</th><th>Mecz</th><th>Oniszk</th><th>Sebix</th><th>Adaś</th><th>Kuba</th><th>Maksym</th><th>Real</th></tr></thead>
+        <tbody id="matchBody"></tbody>
+    </table>
 
     <h3>Ranking Graczy</h3>
     <table class="ranking-table">
-        <thead><tr><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>0 pkt</th><th>Suma Pkt</th></tr></thead>
+        <thead><tr><th>Miejsce</th><th>Gracz</th><th>Punkty</th></tr></thead>
         <tbody id="rankingBody">
-            <tr class="rank-row" id="row1"><td class="name">Oniszk</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
-            <tr class="rank-row" id="row2"><td class="name">Sebix</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
-            <tr class="rank-row" id="row3"><td class="name">Adaś</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
-            <tr class="rank-row" id="row4"><td class="name">Kuba</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
-            <tr class="rank-row" id="row5"><td class="name">Maksym</td><td class="id">0</td><td class="win">0</td><td class="bad">0</td><td class="pts">0</td></tr>
+            <tr id="r1"><td>1</td><td>Oniszk</td><td class="pts">0</td></tr>
+            <tr id="r2"><td>2</td><td>Sebix</td><td class="pts">0</td></tr>
+            <tr id="r3"><td>3</td><td>Adaś</td><td class="pts">0</td></tr>
+            <tr id="r4"><td>4</td><td>Kuba</td><td class="pts">0</td></tr>
+            <tr id="r5"><td>5</td><td>Maksym</td><td class="pts">0</td></tr>
         </tbody>
     </table>
-
-    <div class="extra-fields">
-        <h4>Typy dodatkowe</h4>
-        <script>
-            const names = ["Oniszk", "Sebix", "Adaś", "Kuba", "Maksym"];
-            names.forEach((name, i) => {
-                document.write(`<input type="text" id="krol${i+1}" placeholder="${name}: Król strzelców" oninput="calculate()">`);
-                document.write(`<input type="text" id="mistrz${i+1}" placeholder="${name}: Zwycięzca" oninput="calculate()">`);
-            });
-        </script>
-        <hr>
-        <input type="text" id="real-krol" class="real-field" placeholder="Faktyczny Król" oninput="calculate()">
-        <input type="text" id="real-mistrz" class="real-field" placeholder="Faktyczny Zwycięzca" oninput="calculate()">
-    </div>
-    
-    <button class="btn-save" style="background: #1a3c6e;" onclick="saveData()">ZAPISZ LOKALNIE</button>
-    <button class="btn-save" style="background: #28a745;" onclick="exportData()">POBIERZ JSON (DLA WSZYSTKICH)</button>
-    <button class="btn-save" style="background: #6c757d;" onclick="document.getElementById('importFile').click()">DODAJ PLIK JSON (SCAL)</button>
-    <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+    <button class="btn-save" onclick="saveData()">ZAPISZ WYNIKI</button>
 </div>
 
 <script>
-    function autoTab(el) { if (el.value.length >= el.getAttribute("maxlength")) { const inputs = Array.from(document.querySelectorAll('input[type="number"]')); const index = inputs.indexOf(el); if (index > -1 && inputs[index+1]) inputs[index+1].focus(); } }
-    function parseDate(str) { const p = str.match(/(\d{2})\.(\d{2})\.(\d{2})\s(\d{2}):(\d{2})/); return p ? new Date(2000 + parseInt(p[3]), p[2] - 1, p[1], p[4], p[5]).getTime() : null; }
-    
-    function sortMatches() {
-        const tbody = document.getElementById('matchBody');
-        const rows = Array.from(document.querySelectorAll('.match-row'));
-        rows.sort((a, b) => (parseDate(a.querySelector('.match-time').value) || Infinity) - (parseDate(b.querySelector('.match-time').value) || Infinity));
-        rows.forEach(row => tbody.appendChild(row));
-        updateCountdown();
-    }
+    const players = ["Oniszk", "Sebix", "Adaś", "Kuba", "Maksym"];
+    const matches = [
+        { name: "Meksyk - RPA", time: "2026-06-11T21:00:00" },
+        { name: "Korea Płd - Czechy", time: "2026-06-12T04:00:00" },
+        { name: "Kanada - Bośnia", time: "2026-06-12T21:00:00" },
+        { name: "USA - Paragwaj", time: "2026-06-13T03:00:00" },
+        { name: "Katar - Szwajcaria", time: "2026-06-13T21:00:00" },
+        { name: "Brazylia - Maroko", time: "2026-06-14T00:00:00" },
+        { name: "Haiti - Szkocja", time: "2026-06-14T03:00:00" },
+        { name: "Australia - Turcja", time: "2026-06-14T06:00:00" },
+        { name: "Niemcy - Curacao", time: "2026-06-14T19:00:00" },
+        { name: "Holandia - Japonia", time: "2026-06-14T22:00:00" },
+        { name: "WKS - Ekwador", time: "2026-06-15T01:00:00" },
+        { name: "Szwecja - Tunezja", time: "2026-06-15T04:00:00" },
+        { name: "Hiszpania - Rep. Zielonego Przylądka", time: "2026-06-15T18:00:00" },
+        { name: "Belgia - Egipt", time: "2026-06-15T21:00:00" }
+    ];
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        let closestTime = null;
-        document.querySelectorAll('.match-row').forEach(row => {
-            const time = parseDate(row.querySelector('.match-time').value);
-            if (time && time > now && (!closestTime || time < closestTime)) closestTime = time;
+    function init() {
+        // Extra Inputs
+        const extra = document.getElementById('extraInputs');
+        players.forEach((p, i) => {
+            extra.innerHTML += `<div class="extra-box"><strong>${p}</strong>
+                <input type="text" id="krol${i}" placeholder="Król strzelców" oninput="calculate()">
+                <input type="text" id="mistrz${i}" placeholder="Zwycięzca" oninput="calculate()"></div>`;
         });
-        const display = document.getElementById('countdown');
-        if (closestTime) {
-            const diff = closestTime - now;
-            display.innerText = `Do najbliższego meczu: ${Math.floor(diff / 3600000)}h ${Math.floor((diff % 3600000) / 60000)}m`;
-            display.className = (diff < 3600000) ? 'blink' : '';
-        } else { display.innerText = "Brak nadchodzących meczów"; display.className = ''; }
+        extra.innerHTML += `<div class="extra-box" style="border-left:2px solid #aaa; padding-left:10px"><strong>REAL</strong>
+            <input type="text" id="realKrol" placeholder="Faktyczny Król" oninput="calculate()" class="real">
+            <input type="text" id="realMistrz" placeholder="Faktyczny Mistrz" oninput="calculate()" class="real"></div>`;
+
+        // Matches
+        const tbody = document.getElementById('matchBody');
+        matches.forEach((m, i) => {
+            let row = `<tr><td>${m.time.substring(11, 16)}</td><td>${m.name}</td>`;
+            players.forEach((_, p) => row += `<td><input type="number" class="p${p}h" data-m="${i}">:<input type="number" class="p${p}a" data-m="${i}"></td>`);
+            row += `<td><input type="number" class="rh" data-m="${i}" class="real">:<input type="number" class="ra" data-m="${i}" class="real"></td></tr>`;
+            tbody.innerHTML += row;
+        });
     }
 
     function calculate() {
-        let players = [1,2,3,4,5].map(i => ({
-            id: i, name: document.querySelector(`#row${i} .name`).innerText,
-            pts: 0, ideal: 0, win: 0, bad: 0
-        }));
-        
-        const now = new Date().getTime();
-        document.querySelectorAll('.match-row').forEach(row => {
-            const time = parseDate(row.querySelector('.match-time').value);
-            const isFinished = time && now > time;
-            row.querySelectorAll('input[type="number"]:not(.real-field)').forEach(input => input.readOnly = isFinished);
-            row.classList.toggle('finished-match', isFinished);
-            
-            const rh = parseInt(row.querySelector('.real-h').value);
-            const ra = parseInt(row.querySelector('.real-a').value);
-            
-            players.forEach((p, idx) => {
-                const hIn = row.querySelector('.p' + p.id + '-h');
-                const aIn = row.querySelector('.p' + p.id + '-a');
-                const ih = parseInt(hIn.value), ia = parseInt(aIn.value);
-                hIn.className = 'p' + p.id + '-h'; aIn.className = 'p' + p.id + '-a';
-                if (!isNaN(rh) && !isNaN(ra) && !isNaN(ih) && !isNaN(ia)) {
-                    if (ih === rh && ia === ra) { p.ideal++; p.pts += 3; hIn.classList.add('exact'); aIn.classList.add('exact'); }
-                    else if ((ih > ia && rh > ra) || (ih < ia && rh < ra) || (ih === ia && rh === ra)) { p.win++; p.pts += 1; hIn.classList.add('win'); aIn.classList.add('win'); }
-                    else { p.bad++; hIn.classList.add('wrong'); aIn.classList.add('wrong'); }
-                }
+        let scores = [0,0,0,0,0];
+        const rKrol = document.getElementById('realKrol').value.toLowerCase();
+        const rMistrz = document.getElementById('realMistrz').value.toLowerCase();
+
+        // Punkty za mecze
+        matches.forEach((m, i) => {
+            let rh = document.querySelector(`.rh[data-m="${i}"]`).value;
+            let ra = document.querySelector(`.ra[data-m="${i}"]`).value;
+            if(rh === "" || ra === "") return;
+            players.forEach((_, p) => {
+                let ph = document.querySelector(`.p${p}h[data-m="${i}"]`).value;
+                let pa = document.querySelector(`.p${p}a[data-m="${i}"]`).value;
+                if(ph === "" || pa === "") return;
+                if(ph == rh && pa == ra) scores[p] += 3;
+                else if((ph > pa && rh > ra) || (ph < pa && rh < ra) || (ph == pa && rh == ra)) scores[p] += 1;
             });
         });
 
-        const rKrol = document.getElementById('real-krol').value.trim().toLowerCase();
-        const rMistrz = document.getElementById('real-mistrz').value.trim().toLowerCase();
-        players.forEach(p => {
-            if (rKrol && document.getElementById('krol' + p.id).value.trim().toLowerCase() === rKrol) p.pts += 5;
-            if (rMistrz && document.getElementById('mistrz' + p.id).value.trim().toLowerCase() === rMistrz) p.pts += 5;
+        // Punkty za typy dodatkowe
+        players.forEach((_, i) => {
+            if(rKrol && document.getElementById('krol'+i).value.toLowerCase() === rKrol) scores[i] += 5;
+            if(rMistrz && document.getElementById('mistrz'+i).value.toLowerCase() === rMistrz) scores[i] += 5;
         });
 
-        // Sortowanie graczy
-        players.sort((a, b) => b.pts - a.pts);
-        
-        // Aktualizacja tabeli rankingowej
-        const rankingBody = document.getElementById('rankingBody');
-        players.forEach((p, index) => {
-            const row = document.getElementById('row' + p.id);
-            rankingBody.appendChild(row); // Przesuwa wiersz na odpowiednią pozycję
-            row.querySelector('.id').innerText = p.ideal;
-            row.querySelector('.win').innerText = p.win;
-            row.querySelector('.bad').innerText = p.bad;
-            row.querySelector('.pts').innerText = p.pts;
-            
-            // Stylizacja
-            row.classList.remove('rank-first', 'rank-last');
-            if (index === 0) row.classList.add('rank-first');
-            if (index === players.length - 1) row.classList.add('rank-last');
+        let rankings = players.map((n, i) => ({n, s: scores[i]}));
+        rankings.sort((a,b) => b.s - a.s);
+
+        const rBody = document.getElementById('rankingBody');
+        rBody.innerHTML = "";
+        rankings.forEach((r, i) => {
+            let cls = i === 0 ? "rank-first" : (i === 4 ? "rank-last" : "");
+            rBody.innerHTML += `<tr class="${cls}"><td>${i+1}</td><td>${r.n}</td><td>${r.s}</td></tr>`;
         });
+    }
+
+    function updateTimer() {
+        const now = new Date();
+        let next = matches.map(m => new Date(m.time)).find(t => t > now);
+        if(!next) { document.getElementById('countdown').innerText = "Mecze w toku"; return; }
+        let diff = next - now;
+        let d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+        document.getElementById('countdown').innerText = `Do najbliższego meczu: ${d}d ${h}h ${m}m ${s}s`;
     }
 
     function saveData() {
-        const allInputs = document.querySelectorAll('input');
-        const data = { values: {} };
-        allInputs.forEach(input => { if (input.id) data.values[input.id] = input.value; });
+        let data = {};
+        document.querySelectorAll('input').forEach(i => data[i.id || (i.className + i.dataset.m)] = i.value);
         localStorage.setItem('typer2026', JSON.stringify(data));
-        alert('Zapisano lokalnie!');
-    }
-
-    function exportData() {
-        const data = localStorage.getItem('typer2026');
-        if (!data) return alert("Brak danych!");
-        const blob = new Blob([data], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "typy_mundial_admin.json";
-        a.click();
-    }
-
-    function importData(event) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const newData = JSON.parse(e.target.result);
-            const currentData = JSON.parse(localStorage.getItem('typer2026') || '{"values":{}}');
-            const newValues = newData.values || newData;
-            Object.keys(newValues).forEach(key => {
-                if (!key.startsWith('rm') && key !== 'real-krol' && key !== 'real-mistrz') {
-                    currentData.values[key] = newValues[key];
-                }
-            });
-            localStorage.setItem('typer2026', JSON.stringify(currentData));
-            location.reload();
-        };
-        reader.readAsText(event.target.files[0]);
+        alert('Zapisano!');
     }
 
     window.onload = () => {
-        const raw = localStorage.getItem('typer2026');
-        if (raw) {
-            const data = JSON.parse(raw);
-            const values = data.values || data;
-            Object.keys(values).forEach(key => {
-                const el = document.getElementById(key);
-                if (el) el.value = values[key];
-            });
-        }
-        sortMatches();
+        init();
+        let saved = JSON.parse(localStorage.getItem('typer2026') || "{}");
+        document.querySelectorAll('input').forEach(i => i.value = saved[i.id || (i.className + i.dataset.m)] || "");
+        document.querySelectorAll('input').forEach(i => i.oninput = () => { calculate(); });
+        setInterval(updateTimer, 1000);
         calculate();
-        setInterval(updateCountdown, 60000);
     };
 </script>
 </body>
