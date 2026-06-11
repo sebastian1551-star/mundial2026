@@ -6,22 +6,24 @@
     <title>Mundial 2026 - Typer</title>
     <style>
         :root { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #00e676; }
-        body { font-family: sans-serif; background-color: var(--bg); color: var(--text); padding: 10px; margin: 0; }
-        .container { max-width: 1000px; margin: auto; background: var(--card); padding: 15px; border-radius: 12px; }
-        h1 { font-size: 1.3em; text-align: center; color: var(--accent); }
+        body { font-family: sans-serif; background-color: var(--bg); color: var(--text); padding: 5px; margin: 0; }
+        .container { max-width: 1000px; margin: auto; background: var(--card); padding: 10px; border-radius: 12px; }
+        h1 { font-size: 1.2em; text-align: center; color: var(--accent); margin: 5px 0; }
+        #countdown { font-size: 1em; color: var(--accent); text-align: center; margin-bottom: 10px; font-weight: bold; }
         
-        #countdown { font-size: 1.1em; color: var(--accent); text-align: center; margin-bottom: 15px; font-weight: bold; }
-        
-        #extraInputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
-        .player-bonus { background: #2a2a2a; padding: 5px; border-radius: 6px; text-align: center; font-size: 0.8em; }
-        .player-bonus input { width: 35px; height: 25px; margin: 2px; text-align: center; }
+        #extraInputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+        .player-bonus { background: #2a2a2a; padding: 4px; border-radius: 6px; text-align: center; font-size: 0.7em; }
+        .player-bonus input { width: 30px; height: 25px; margin: 1px; text-align: center; }
 
-        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { padding: 8px 2px; border: 1px solid #333; text-align: center; }
-        input { width: 35px; height: 35px; font-size: 1.1em; text-align: center; background: #2a2a2a; border: 1px solid #555; color: white; border-radius: 6px; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 4px 1px; border: 1px solid #333; text-align: center; }
         
-        .btn-save { width: 100%; padding: 15px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1.1em; }
+        /* Pola poziome */
+        .score-input { display: flex; justify-content: center; align-items: center; gap: 2px; }
+        input { width: 28px; height: 28px; font-size: 1em; text-align: center; background: #2a2a2a; border: 1px solid #555; color: white; border-radius: 4px; }
+        
+        .btn-save { width: 100%; padding: 12px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1em; margin: 10px 0; }
         
         .exact { background-color: #2e7d32 !important; }
         .win { background-color: #f9a825 !important; }
@@ -31,7 +33,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>MUNDIAL 2026 - TYPER</h1>
+    <h1>MUNDIAL 2026</h1>
     <div id="countdown">Ładowanie...</div>
     <div id="extraInputs"></div>
     
@@ -46,7 +48,7 @@
 
     <h2>RANKING</h2>
     <div class="table-wrapper">
-        <table><thead><tr><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>Bonus</th><th>Suma</th></tr></thead><tbody id="rankingBody"></tbody></table>
+        <table><thead><tr><th>Gracz</th><th>3p</th><th>1p</th><th>B</th><th>Suma</th></tr></thead><tbody id="rankingBody"></tbody></table>
     </div>
 </div>
 
@@ -69,8 +71,8 @@
         const extra = document.getElementById('extraInputs');
         [...players, "REAL"].forEach((p, i) => {
             extra.innerHTML += `<div class="player-bonus"><b>${p}</b><br>
-                <input type="text" id="k_${i}" placeholder="K" oninput="calculate()">
-                <input type="text" id="m_${i}" placeholder="M" oninput="calculate()"></div>`;
+                <input type="number" id="k_${i}" placeholder="K" oninput="calculate()">
+                <input type="number" id="m_${i}" placeholder="M" oninput="calculate()"></div>`;
         });
         
         const headRow = document.getElementById('headRow');
@@ -79,23 +81,33 @@
         const tbody = document.getElementById('matchBody');
         matches.forEach((m, i) => {
             let row = `<tr><td>${m.time.slice(5,10)}<br>${m.time.slice(11,16)}</td><td>${m.name.replace('-','<br>')}</td>`;
-            players.forEach((_, p) => row += `<td><input type="number" id="p${p}h${i}" oninput="calculate()">:<input type="number" id="p${p}a${i}" oninput="calculate()"></td>`);
-            row += `<td><input type="number" id="rh${i}" oninput="calculate()">:<input type="number" id="ra${i}" oninput="calculate()"></td></tr>`;
+            players.forEach((_, p) => row += `<td><div class="score-input"><input type="number" id="p${p}h${i}" oninput="autoTab(this)">:<input type="number" id="p${p}a${i}" oninput="autoTab(this)"></div></td>`);
+            row += `<td><div class="score-input"><input type="number" id="rh${i}" oninput="autoTab(this)">:<input type="number" id="ra${i}" oninput="autoTab(this)"></div></td></tr>`;
             tbody.innerHTML += row;
         });
     }
 
+    function autoTab(el) {
+        if (el.value.length >= 1) {
+            let inputs = Array.from(document.querySelectorAll('input[type="number"]'));
+            let idx = inputs.indexOf(el);
+            if(inputs[idx + 1]) inputs[idx + 1].focus();
+        }
+        calculate();
+    }
+
     function calculate() {
+        // ... (logika obliczeń zostaje ta sama)
         let stats = players.map(() => ({exact: 0, win: 0, bonus: 0}));
         matches.forEach((_, i) => {
             let rh = document.getElementById(`rh${i}`).value, ra = document.getElementById(`ra${i}`).value;
             players.forEach((_, p) => {
                 let h = document.getElementById(`p${p}h${i}`), a = document.getElementById(`p${p}a${i}`);
-                h.className = a.className = "";
+                h.parentElement.style.backgroundColor = "";
                 if(rh !== "" && ra !== "" && h.value !== "" && a.value !== "") {
-                    if(h.value == rh && a.value == ra) { stats[p].exact++; h.className = a.className = "exact"; }
-                    else if((h.value > a.value && rh > ra) || (h.value < a.value && rh < ra) || (h.value == a.value && rh == ra)) { stats[p].win++; h.className = a.className = "win"; }
-                    else { h.className = a.className = "wrong"; }
+                    if(h.value == rh && a.value == ra) { stats[p].exact++; h.parentElement.className = "score-input exact"; }
+                    else if((h.value > a.value && rh > ra) || (h.value < a.value && rh < ra) || (h.value == a.value && rh == ra)) { stats[p].win++; h.parentElement.className = "score-input win"; }
+                    else { h.parentElement.className = "score-input wrong"; }
                 }
             });
         });
@@ -112,7 +124,7 @@
 
     function updateCountdown() {
         const next = matches.find(m => new Date(m.time) > new Date());
-        if(!next) { document.getElementById('countdown').innerText = "Wszystkie mecze w toku!"; return; }
+        if(!next) { document.getElementById('countdown').innerText = "Mundial trwa!"; return; }
         const diff = new Date(next.time) - new Date();
         const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000);
         document.getElementById('countdown').innerText = `Do ${next.name}: ${d>0?d+'d ':''}${h}h ${m}m`;
