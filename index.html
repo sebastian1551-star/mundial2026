@@ -6,22 +6,27 @@
     <title>Mundial 2026 - Typer</title>
     <style>
         :root { --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --accent: #00e676; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); padding: 10px; margin: 0; overflow-x: hidden; }
+        body { font-family: sans-serif; background-color: var(--bg); color: var(--text); padding: 10px; margin: 0; }
         .container { max-width: 1000px; margin: auto; background: var(--card); padding: 15px; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-        th, td { padding: 6px; border: 1px solid #333; text-align: center; }
-        input { width: 25px; text-align: center; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px; padding: 2px; }
-        input:disabled { background: #1a1a1a; color: #666; border: 1px solid #222; }
+        h1 { font-size: 1.3em; text-align: center; color: var(--accent); }
+        
+        #countdown { font-size: 1.1em; color: var(--accent); text-align: center; margin-bottom: 15px; font-weight: bold; }
+        
+        #extraInputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 20px; }
+        .player-bonus { background: #2a2a2a; padding: 5px; border-radius: 6px; text-align: center; font-size: 0.8em; }
+        .player-bonus input { width: 35px; height: 25px; margin: 2px; text-align: center; }
+
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 8px 2px; border: 1px solid #333; text-align: center; }
+        input { width: 35px; height: 35px; font-size: 1.1em; text-align: center; background: #2a2a2a; border: 1px solid #555; color: white; border-radius: 6px; }
+        
+        .btn-save { width: 100%; padding: 15px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; font-size: 1.1em; }
+        
         .exact { background-color: #2e7d32 !important; }
         .win { background-color: #f9a825 !important; }
         .wrong { background-color: #c62828 !important; }
-        .rank-first { background-color: #1b5e20 !important; font-weight: bold; }
-        .rank-last { background-color: #b71c1c !important; }
-        .btn-save { width: 100%; padding: 15px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; border-radius: 8px; color: #000; margin-bottom: 20px; font-size: 16px; }
-        #countdown { font-size: 1.2em; color: var(--accent); text-align: center; margin-bottom: 15px; font-weight: bold; }
-        #extraInputs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .player-row { background: #2a2a2a; padding: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .table-wrapper { overflow-x: auto; }
+        .rank-first { background-color: #1b5e20 !important; }
     </style>
 </head>
 <body>
@@ -37,47 +42,35 @@
         </table>
     </div>
 
+    <button class="btn-save" onclick="saveData()">ZAPISZ TYPY</button>
+
     <h2>RANKING</h2>
     <div class="table-wrapper">
         <table><thead><tr><th>Gracz</th><th>3 pkt</th><th>1 pkt</th><th>Bonus</th><th>Suma</th></tr></thead><tbody id="rankingBody"></tbody></table>
     </div>
-    
-    <button class="btn-save" onclick="saveData()">ZAPISZ TYPY</button>
 </div>
 
 <script>
     const players = ["Oniszk", "Sebix", "Adaś", "Patryk", "Maksym"];
-    // Lista zaktualizowana: usunięto Polskę, poprawiono listę
     const matches = [
-        { name: "Meksyk-RPA", time: "2026-06-11T21:00:00" }, 
-        { name: "Korea-Czechy", time: "2026-06-12T04:00:00" },
-        { name: "Kanada-Bośnia", time: "2026-06-12T21:00:00" }, 
-        { name: "USA-Paragwaj", time: "2026-06-13T03:00:00" },
-        { name: "Katar-Szwajcaria", time: "2026-06-13T21:00:00" }, 
-        { name: "Brazylia-Maroko", time: "2026-06-14T00:00:00" },
-        { name: "Haiti-Szkocja", time: "2026-06-14T03:00:00" }, 
-        { name: "Australia-Turcja", time: "2026-06-14T06:00:00" },
-        { name: "Niemcy-Curacao", time: "2026-06-14T19:00:00" }, 
-        { name: "Holandia-Japonia", time: "2026-06-14T22:00:00" },
-        { name: "WKS-Ekwador", time: "2026-06-15T01:00:00" }, 
-        { name: "Szwecja-Tunezja", time: "2026-06-15T04:00:00" },
-        { name: "Hiszpania-Ziel.Przyl.", time: "2026-06-15T18:00:00" }, 
-        { name: "Belgia-Egipt", time: "2026-06-15T21:00:00" },
-        { name: "Anglia-Iran", time: "2026-06-16T00:00:00" }, 
-        { name: "Francja-Wenezuela", time: "2026-06-16T03:00:00" },
-        { name: "Argentyna-Norwegia", time: "2026-06-16T18:00:00" }, 
-        { name: "Włochy-Ghana", time: "2026-06-16T21:00:00" },
-        { name: "Urugwaj-Serbia", time: "2026-06-17T00:00:00" }, 
-        { name: "Chorwacja-Nigeria", time: "2026-06-17T03:00:00" }
+        { name: "Meksyk-RPA", time: "2026-06-11T21:00:00" }, { name: "Korea-Czechy", time: "2026-06-12T04:00:00" },
+        { name: "Kanada-Bośnia", time: "2026-06-12T21:00:00" }, { name: "USA-Paragwaj", time: "2026-06-13T03:00:00" },
+        { name: "Katar-Szwajcaria", time: "2026-06-13T21:00:00" }, { name: "Brazylia-Maroko", time: "2026-06-14T00:00:00" },
+        { name: "Haiti-Szkocja", time: "2026-06-14T03:00:00" }, { name: "Australia-Turcja", time: "2026-06-14T06:00:00" },
+        { name: "Niemcy-Curacao", time: "2026-06-14T19:00:00" }, { name: "Holandia-Japonia", time: "2026-06-14T22:00:00" },
+        { name: "WKS-Ekwador", time: "2026-06-15T01:00:00" }, { name: "Szwecja-Tunezja", time: "2026-06-15T04:00:00" },
+        { name: "Hiszpania-Ziel.Przyl.", time: "2026-06-15T18:00:00" }, { name: "Belgia-Egipt", time: "2026-06-15T21:00:00" },
+        { name: "Anglia-Iran", time: "2026-06-16T00:00:00" }, { name: "Francja-Wenezuela", time: "2026-06-16T03:00:00" },
+        { name: "Argentyna-Norwegia", time: "2026-06-16T18:00:00" }, { name: "Włochy-Ghana", time: "2026-06-16T21:00:00" },
+        { name: "Urugwaj-Serbia", time: "2026-06-17T00:00:00" }, { name: "Chorwacja-Nigeria", time: "2026-06-17T03:00:00" }
     ];
 
     function init() {
-        const now = new Date();
         const extra = document.getElementById('extraInputs');
         [...players, "REAL"].forEach((p, i) => {
-            extra.innerHTML += `<div class="player-row"><b>${p}</b>
-                <div><input type="text" id="k_${i}" placeholder="Król" oninput="calculate()">
-                <input type="text" id="m_${i}" placeholder="Mistrz" oninput="calculate()"></div></div>`;
+            extra.innerHTML += `<div class="player-bonus"><b>${p}</b><br>
+                <input type="text" id="k_${i}" placeholder="K" oninput="calculate()">
+                <input type="text" id="m_${i}" placeholder="M" oninput="calculate()"></div>`;
         });
         
         const headRow = document.getElementById('headRow');
@@ -85,21 +78,11 @@
         
         const tbody = document.getElementById('matchBody');
         matches.forEach((m, i) => {
-            const isLocked = new Date(m.time) <= now;
-            let row = `<tr><td>${m.time.slice(5,10)}<br>${m.time.slice(11,16)}</td><td>${m.name}</td>`;
-            players.forEach((_, p) => row += `<td><input type="text" id="p${p}h${i}" ${isLocked ? 'disabled' : ''} oninput="autoTab(this)">:<input type="text" id="p${p}a${i}" ${isLocked ? 'disabled' : ''} oninput="autoTab(this)"></td>`);
-            row += `<td><input type="text" id="rh${i}" oninput="autoTab(this)">:<input type="text" id="ra${i}" oninput="autoTab(this)"></td></tr>`;
+            let row = `<tr><td>${m.time.slice(5,10)}<br>${m.time.slice(11,16)}</td><td>${m.name.replace('-','<br>')}</td>`;
+            players.forEach((_, p) => row += `<td><input type="number" id="p${p}h${i}" oninput="calculate()">:<input type="number" id="p${p}a${i}" oninput="calculate()"></td>`);
+            row += `<td><input type="number" id="rh${i}" oninput="calculate()">:<input type="number" id="ra${i}" oninput="calculate()"></td></tr>`;
             tbody.innerHTML += row;
         });
-    }
-
-    function autoTab(el) {
-        if (el.value.length >= 1) {
-            let all = Array.from(document.querySelectorAll('input'));
-            let idx = all.indexOf(el);
-            if(all[idx+1]) all[idx+1].focus();
-        }
-        calculate();
     }
 
     function calculate() {
@@ -124,18 +107,15 @@
 
         const tbody = document.getElementById('rankingBody');
         const sorted = players.map((p, i) => ({p, ...stats[i]})).sort((a,b) => (b.exact*3 + b.win*1 + b.bonus) - (a.exact*3 + a.win*1 + a.bonus));
-        tbody.innerHTML = sorted.map((x, i) => {
-            let cls = i === 0 ? 'class="rank-first"' : (i === sorted.length - 1 ? 'class="rank-last"' : '');
-            return `<tr ${cls}><td>${x.p}</td><td>${x.exact}</td><td>${x.win}</td><td>${x.bonus}</td><td>${x.exact*3 + x.win*1 + x.bonus}</td></tr>`;
-        }).join('');
+        tbody.innerHTML = sorted.map((x, i) => `<tr ${i===0?'class="rank-first"':''}><td>${x.p}</td><td>${x.exact}</td><td>${x.win}</td><td>${x.bonus}</td><td>${x.exact*3 + x.win*1 + x.bonus}</td></tr>`).join('');
     }
 
     function updateCountdown() {
         const next = matches.find(m => new Date(m.time) > new Date());
-        if(!next) { document.getElementById('countdown').innerText = "Wszystkie mecze w tej rundzie się rozpoczęły!"; return; }
+        if(!next) { document.getElementById('countdown').innerText = "Wszystkie mecze w toku!"; return; }
         const diff = new Date(next.time) - new Date();
         const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000);
-        document.getElementById('countdown').innerText = `Do ${next.name}: ${d > 0 ? d+'d ' : ''}${h}h ${m}m`;
+        document.getElementById('countdown').innerText = `Do ${next.name}: ${d>0?d+'d ':''}${h}h ${m}m`;
     }
 
     function saveData() {
@@ -144,13 +124,7 @@
         alert('Zapisano typy!');
     }
 
-    window.onload = () => { 
-        init(); 
-        let s = JSON.parse(localStorage.getItem('typer2026_data') || '{}');
-        Object.keys(s).forEach(k => { let el = document.getElementById(k); if(el) el.value = s[k]; });
-        calculate();
-        setInterval(updateCountdown, 1000);
-    };
+    window.onload = () => { init(); setInterval(updateCountdown, 1000); let s = JSON.parse(localStorage.getItem('typer2026_data') || '{}'); Object.keys(s).forEach(k => { let el = document.getElementById(k); if(el) el.value = s[k]; }); calculate(); };
 </script>
 </body>
 </html>
